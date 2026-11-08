@@ -154,7 +154,7 @@ require __DIR__ . '/includes/header.php';
             <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white" type="submit">Log out</button></form>
         </aside>
         <main class="px-6 py-10 sm:px-10 lg:px-14">
-            <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your accounts</p><h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Wallets</h1><p class="mt-2 text-sm leading-6 text-muted">Track cash, bank accounts, and e-wallets in one place.</p></div><a class="rounded-xl bg-brand px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand/15 hover:bg-brand-dark" href="#wallet-form">Add wallet</a></div>
+            <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your accounts</p><h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Wallets</h1><p class="mt-2 text-sm leading-6 text-muted">Track cash, bank accounts, and e-wallets in one place.</p></div></div>
             <?php if ($flash): ?><div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status"><?= e($flash['message']) ?></div><?php endif; ?>
             <?php if ($errors): ?><div class="alert alert-error mt-7" role="alert"><ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
             <section class="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_23rem]">
