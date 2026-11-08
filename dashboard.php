@@ -23,20 +23,44 @@ require __DIR__ . '/includes/header.php';
 
 <body class="min-h-screen bg-sand text-ink">
     <div class="min-h-screen md:grid md:grid-cols-[16rem_1fr]">
-        <aside class="bg-brand px-6 py-7 text-white md:min-h-screen">
-            <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php"><span
-                    class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">₱</span>xinPHP</a>
-            <nav class="mt-10 flex gap-2 overflow-x-auto md:flex-col" aria-label="Main navigation">
-                <a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold" href="dashboard.php">Overview</a>
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="wallets.php">Wallets</a>
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="transfers.php">Transfers</a>
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-                    href="transactions.php">Transactions</a>
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="budgets.php">Budgets</a>
+        <aside class="bg-brand px-6 py-7 text-white md:flex md:min-h-screen md:flex-col">
+            <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php">
+                <span class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">
+                    ₱
+                </span>
+                xinPHP
+            </a>
+            <nav class="mt-8 flex gap-2 overflow-x-auto pb-2 md:mt-10 md:flex-1 md:flex-col md:pb-0"
+                aria-label="Main navigation">
+                <a class="shrink-0 rounded-xl bg-white/15 px-4 py-3 text-sm font-bold"
+                    href="dashboard.php">
+                    Overview
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="wallets.php">
+                    Wallets
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="transfers.php">
+                    Transfers
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="transactions.php">
+                    Transactions
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="budgets.php">
+                    Budgets
+                </a>
             </nav>
-            <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token"
-                    value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white"
-                    type="submit">Log out</button></form>
+            <form class="mt-6 border-t border-white/15 pt-4 md:mt-auto md:pt-6" action="logout.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                <button
+                    class="mt-2 w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+                    type="submit">
+                    Log out
+                </button>
+            </form>
         </aside>
         <main class="px-6 py-10 sm:px-10 lg:px-14">
             <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your overview</p>
@@ -73,12 +97,47 @@ require __DIR__ . '/includes/header.php';
             </section>
             <section class="mt-10">
                 <div class="flex flex-wrap items-end justify-between gap-4">
-                    <div><h2 class="text-xl font-extrabold tracking-tight">Monthly Budget Overview</h2><p class="mt-1 text-sm text-muted">Expense limits and spending progress.</p></div>
-                    <div class="flex items-end gap-3"><form method="get" action="dashboard.php"><label class="block text-xs font-bold text-muted">Month<input class="mt-1 block rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink" name="budget_month" type="month" value="<?= e($budgetMonthInput) ?>"></label></form><a class="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-dark" href="budgets.php">Manage Budgets</a></div>
+                    <div>
+                        <h2 class="text-xl font-extrabold tracking-tight">Monthly Budget Overview</h2>
+                        <p class="mt-1 text-sm text-muted">Expense limits and spending progress.</p>
+                    </div>
+                    <div class="flex items-end gap-3">
+                        <form method="get" action="dashboard.php"><label
+                                class="block text-xs font-bold text-muted">Month<input
+                                    class="mt-1 block rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink"
+                                    name="budget_month" type="month" value="<?= e($budgetMonthInput) ?>"></label></form>
+                        <a class="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
+                            href="budgets.php">Manage Budgets</a>
+                    </div>
                 </div>
                 <?php if (!$budgetOverview): ?>
-                    <div class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center"><p class="font-bold">No budgets for this month</p><p class="mt-2 text-sm text-muted">Create category spending limits from the Budgets page.</p><a class="mt-4 inline-block text-sm font-bold text-brand hover:text-brand-dark" href="budgets.php">Manage Budgets</a></div>
-                <?php else: ?><div class="mt-5 grid gap-4 lg:grid-cols-2"><?php foreach ($budgetOverview as $budget): ?><?php $allocated=(float)$budget['amount']; $spent=(float)$budget['spent']; $remaining=$allocated-$spent; $percentage=$allocated>0?($spent/$allocated)*100:0; $state=$percentage>=100?'exceeded':($percentage>=80?'approaching':'within'); $bar=$state==='exceeded'?'bg-rose-500':($state==='approaching'?'bg-amber-500':'bg-brand'); ?><article class="rounded-2xl border border-line bg-white p-5 shadow-sm"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><h3 class="truncate font-extrabold"><?= e($budget['category_name']) ?></h3><p class="mt-1 text-sm text-muted">Allocated <?= format_peso((string)$budget['amount']) ?> · Spent <?= format_peso((string)$budget['spent']) ?></p></div><span class="shrink-0 text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span></div><div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line"><div class="h-full rounded-full <?= $bar ?>" style="width:<?= min($percentage,100) ?>%"></div></div><div class="mt-3 flex flex-wrap justify-between gap-2 text-sm"><span class="text-muted"><?= number_format($percentage,0) ?>% used</span><strong class="<?= $remaining<0?'text-rose-700':'text-brand' ?>"><?= $remaining<0?'Over by '.format_peso((string)abs($remaining)):format_peso((string)$remaining).' remaining' ?></strong></div></article><?php endforeach; ?></div><?php endif; ?>
+                <div class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
+                    <p class="font-bold">No budgets for this month</p>
+                    <p class="mt-2 text-sm text-muted">Create category spending limits from the Budgets page.</p><a
+                        class="mt-4 inline-block text-sm font-bold text-brand hover:text-brand-dark"
+                        href="budgets.php">Manage Budgets</a>
+                </div>
+                <?php else: ?><div class="mt-5 grid gap-4 lg:grid-cols-2">
+                    <?php foreach ($budgetOverview as $budget): ?><?php $allocated=(float)$budget['amount']; $spent=(float)$budget['spent']; $remaining=$allocated-$spent; $percentage=$allocated>0?($spent/$allocated)*100:0; $state=$percentage>=100?'exceeded':($percentage>=80?'approaching':'within'); $bar=$state==='exceeded'?'bg-rose-500':($state==='approaching'?'bg-amber-500':'bg-brand'); ?>
+                    <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <h3 class="truncate font-extrabold"><?= e($budget['category_name']) ?></h3>
+                                <p class="mt-1 text-sm text-muted">Allocated
+                                    <?= format_peso((string)$budget['amount']) ?> · Spent
+                                    <?= format_peso((string)$budget['spent']) ?></p>
+                            </div><span
+                                class="shrink-0 text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span>
+                        </div>
+                        <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line">
+                            <div class="h-full rounded-full <?= $bar ?>" style="width:<?= min($percentage,100) ?>%">
+                            </div>
+                        </div>
+                        <div class="mt-3 flex flex-wrap justify-between gap-2 text-sm"><span
+                                class="text-muted"><?= number_format($percentage,0) ?>% used</span><strong
+                                class="<?= $remaining<0?'text-rose-700':'text-brand' ?>"><?= $remaining<0?'Over by '.format_peso((string)abs($remaining)):format_peso((string)$remaining).' remaining' ?></strong>
+                        </div>
+                    </article><?php endforeach; ?></div><?php endif; ?>
             </section>
             <section class="mt-10">
                 <div class="flex items-end justify-between gap-4">

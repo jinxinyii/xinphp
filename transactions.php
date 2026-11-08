@@ -224,22 +224,44 @@ require __DIR__ . '/includes/header.php';
 
 <body class="min-h-screen bg-sand text-ink">
     <div class="min-h-screen md:grid md:grid-cols-[16rem_1fr]">
-        <aside class="bg-brand px-6 py-7 text-white md:min-h-screen"><a
-                class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php"><span
-                    class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">₱</span>xinPHP</a>
-            <nav class="mt-10 flex gap-2 overflow-x-auto md:flex-col" aria-label="Main navigation"><a
-                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-                    href="dashboard.php">Overview</a><a
-                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-                    href="wallets.php">Wallets</a><a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold"
-                    href="transactions.php">Transactions</a><a
-                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-                    href="transfers.php">Transfers</a><a
-                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="budgets.php">Budgets</a>
+        <aside class="bg-brand px-6 py-7 text-white md:flex md:min-h-screen md:flex-col">
+            <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php">
+                <span class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">
+                    ₱
+                </span>
+                xinPHP
+            </a>
+            <nav class="mt-8 flex gap-2 overflow-x-auto pb-2 md:mt-10 md:flex-1 md:flex-col md:pb-0"
+                aria-label="Main navigation">
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="dashboard.php">
+                    Overview
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="wallets.php">
+                    Wallets
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="transfers.php">
+                    Transfers
+                </a>
+                <a class="shrink-0 rounded-xl bg-white/15 px-4 py-3 text-sm font-bold"
+                    href="transactions.php">
+                    Transactions
+                </a>
+                <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    href="budgets.php">
+                    Budgets
+                </a>
             </nav>
-            <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token"
-                    value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white"
-                    type="submit">Log out</button></form>
+            <form class="mt-6 border-t border-white/15 pt-4 md:mt-auto md:pt-6" action="logout.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                <button
+                    class="mt-2 w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+                    type="submit">
+                    Log out
+                </button>
+            </form>
         </aside>
         <main class="px-6 py-10 sm:px-10 lg:px-14">
             <div class="flex flex-wrap items-end justify-between gap-4">
