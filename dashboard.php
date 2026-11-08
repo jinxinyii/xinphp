@@ -24,7 +24,7 @@ require __DIR__ . '/includes/header.php';
                 <a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold" href="dashboard.php">Overview</a>
                 <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="wallets.php">Wallets</a>
                 <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="transactions.php">Transactions</a>
-                <span class="rounded-xl px-4 py-3 text-sm text-white/65">Budgets <small class="ml-1 text-xs">Soon</small></span>
+                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="budgets.php">Budgets</a>
             </nav>
             <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white" type="submit">Log out</button></form>
         </aside>
