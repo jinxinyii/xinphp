@@ -71,7 +71,7 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
                         value="<?= e($form['amount']) ?>" inputmode="decimal" required></label><button
                     class="rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-dark"
                     <?= !$categories?'disabled':'' ?>><?= $editing?'Save changes':'Add budget' ?></button><?php if($editing): ?><a
-                    class="px-4 py-3 text-sm font-bold text-muted"
+                    class="inline-flex items-center justify-center rounded-xl bg-rose-100 px-4 py-2 text-sm font-bold text-rose-700 transition hover:bg-rose-200 text-muted"
                     href="budgets.php?month=<?= e($selectedMonth) ?>">Cancel</a><?php endif; ?></form>
         </section>
         <section class="mt-10">
@@ -98,13 +98,21 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
                             used</span><strong
                             class="<?= $remain<0?'text-rose-700':'text-brand' ?>"><?= $remain<0?'Over by '.format_peso((string)abs($remain)):format_peso((string)$remain).' remaining' ?></strong>
                     </div>
-                    <div class="mt-4 flex gap-3"><a class="text-sm font-bold text-brand"
-                            href="budgets.php?month=<?= e($selectedMonth) ?>&edit=<?= (int)$b['id'] ?>">Edit</a>
-                        <form method="post" onsubmit="return confirm('Delete this budget?');"><input type="hidden"
-                                name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
-                                value="delete"><input type="hidden" name="budget_id"
-                                value="<?= (int)$b['id'] ?>"><button
-                                class="text-sm font-bold text-rose-700">Delete</button></form>
+                    <div class="mt-4 flex items-center gap-3">
+                        <a class="inline-flex items-center justify-center rounded-xl bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand/90"
+                            href="budgets.php?month=<?= e($selectedMonth) ?>&edit=<?= (int)$b['id'] ?>">
+                            Edit
+                        </a>
+                        <form method="post" onsubmit="return confirm('Delete this budget?');">
+                            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="budget_id" value="<?= (int)$b['id'] ?>">
+                            <button
+                                class="inline-flex items-center justify-center rounded-xl bg-rose-100 px-4 py-2 text-sm font-bold text-rose-700 transition hover:bg-rose-200"
+                                type="submit">
+                                Delete
+                            </button>
+                        </form>
                     </div>
                 </article><?php endforeach; ?></div><?php endif; ?>
         </section>
