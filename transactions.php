@@ -233,6 +233,8 @@ require __DIR__ . '/includes/header.php';
                     class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
                     href="wallets.php">Wallets</a><a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold"
                     href="transactions.php">Transactions</a><a
+                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
+                    href="transfers.php">Transfers</a><a
                     class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="budgets.php">Budgets</a>
             </nav>
             <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token"

@@ -50,6 +50,7 @@
     .data-table { @apply overflow-x-auto rounded-2xl border border-line bg-white; scrollbar-width: thin; }
     .data-table table { @apply min-w-[42rem] text-left text-sm; }
     .page-heading { @apply text-3xl font-extrabold tracking-[-.05em] sm:text-4xl; }
+
 }
 
 @media (max-width: 767px) {
