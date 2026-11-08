@@ -1,0 +1,5 @@
+/node_modules/
+/assets/css/output.css
+/.env
+/.env.*
+!.env.example

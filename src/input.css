@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../*.php";
+@source "../includes/**/*.php";
 
 @theme {
     --color-brand: #0f5c46;
@@ -17,11 +19,27 @@
 }
 
 @layer components {
+    .auth-card {
+        @apply rounded-2xl border border-line bg-white p-6 shadow-xl shadow-brand/5 sm:p-8;
+    }
+
     .form-field label {
         @apply mb-2 block text-sm font-bold text-ink;
     }
 
     .form-field input {
         @apply w-full rounded-xl border border-line px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-brand focus:ring-4 focus:ring-brand/10;
+    }
+
+    .alert {
+        @apply mb-5 rounded-xl border px-4 py-3 text-sm leading-6;
+    }
+
+    .alert-error {
+        @apply border-red-200 bg-red-50 text-red-800;
+    }
+
+    .alert-success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-800;
     }
 }

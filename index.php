@@ -1,12 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#075c46">
-    <link rel="stylesheet" href="assets/css/output.css">
-    <title>xinPHP | Personal Budget Tracker</title>
-</head>
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/config/database.php';
+
+if (is_logged_in()) {
+    redirect('dashboard.php');
+}
+
+$errors = [];
+$email = '';
+$flash = get_flash();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim((string) ($_POST['email'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Your form expired. Please try again.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+        $errors[] = 'Enter a valid email address and password.';
+    } else {
+        try {
+            $statement = database()->prepare('SELECT id, full_name, password FROM users WHERE email = :email LIMIT 1');
+            $statement->execute(['email' => $email]);
+            $user = $statement->fetch();
+
+            if (!$user || !password_verify($password, $user['password'])) {
+                $errors[] = 'Invalid email or password.';
+            } else {
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = (int) $user['id'];
+                $_SESSION['user_name'] = $user['full_name'];
+                redirect('dashboard.php');
+            }
+        } catch (PDOException|RuntimeException $exception) {
+            $errors[] = 'We could not log you in right now. Please check the database setup and try again.';
+        }
+    }
+}
+
+$pageTitle = 'xinPHP | Log in';
+require __DIR__ . '/includes/header.php';
+?>
 <body class="min-h-screen bg-sand text-ink antialiased">
     <main class="grid min-h-screen lg:grid-cols-[1.1fr_.9fr]">
         <section class="relative isolate overflow-hidden bg-brand px-6 py-7 text-white sm:px-10 lg:flex lg:min-h-screen lg:flex-col lg:px-[clamp(3rem,8vw,8rem)] lg:py-10">
@@ -41,22 +77,24 @@
                 <h2 class="text-3xl font-extrabold tracking-[-.045em] text-ink">Welcome back</h2>
                 <p class="mt-2 text-sm leading-6 text-muted">Log in to continue keeping your budget on track.</p>
 
-                <form class="mt-8" action="#" method="post">
+                <?php if ($flash): ?>
+                    <div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?>" role="status"><?= e($flash['message']) ?></div>
+                <?php endif; ?>
+                <?php if ($errors): ?>
+                    <div class="alert alert-error" role="alert"><ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div>
+                <?php endif; ?>
+                <form class="mt-8" action="index.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                     <div class="form-field">
                         <label for="email">Email address</label>
-                        <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+                        <input id="email" name="email" type="email" value="<?= e($email) ?>" placeholder="you@example.com" autocomplete="email" required>
                     </div>
                     <div class="form-field mt-5">
                         <div class="flex items-center justify-between gap-4">
                             <label for="password">Password</label>
-                            <a class="text-xs font-bold text-brand hover:text-brand-dark" href="#forgot-password">Forgot password?</a>
                         </div>
-                        <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+                        <div class="relative"><input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required><button class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark" type="button" aria-controls="password" aria-label="Show password">Show</button></div>
                     </div>
-                    <label class="mt-4 flex w-fit cursor-pointer items-center gap-2 text-sm text-muted">
-                        <input class="size-4 accent-brand" type="checkbox" name="remember">
-                        Keep me signed in
-                    </label>
                     <button class="mt-6 w-full rounded-xl bg-brand px-4 py-3.5 font-bold text-white shadow-lg shadow-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand/20" type="submit">Log in to xinPHP</button>
                 </form>
 
@@ -66,5 +104,4 @@
             </div>
         </section>
     </main>
-</body>
-</html>
+<?php require __DIR__ . '/includes/footer.php'; ?>
