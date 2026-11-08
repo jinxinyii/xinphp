@@ -31,4 +31,81 @@ $start=$selectedMonth.'-01'; $end=(new DateTimeImmutable($start))->modify('first
 $s=$pdo->prepare("SELECT b.id,b.amount,c.name,CAST(COALESCE(SUM(t.amount),0) AS DECIMAL(14,2)) spent FROM budgets b JOIN categories c ON c.id=b.category_id AND c.user_id=b.user_id LEFT JOIN transactions t ON t.category_id=b.category_id AND t.user_id=b.user_id AND t.type='expense' AND t.transaction_date>=:start AND t.transaction_date<:end WHERE b.user_id=:user_id AND b.budget_month=:month GROUP BY b.id,b.amount,c.name ORDER BY c.name"); $s->execute(['start'=>$start,'end'=>$end,'user_id'=>$userId,'month'=>$start]); $budgets=$s->fetchAll();
 $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
 ?>
-<body class="min-h-screen bg-sand text-ink"><main class="mx-auto max-w-6xl px-6 py-10"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Spending limits</p><h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Monthly budgets</h1><p class="mt-2 text-sm text-muted">Set limits for expense categories and monitor progress.</p></div><a class="rounded-xl border border-line px-4 py-3 text-sm font-bold" href="dashboard.php">Back to dashboard</a></div><?php if($flash): ?><div class="alert <?= $flash['type']==='success'?'alert-success':'alert-error' ?> mt-6"><?= e($flash['message']) ?></div><?php endif; ?><?php if($errors): ?><div class="alert alert-error mt-6"><ul class="list-inside list-disc"><?php foreach($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?><form class="mt-7 flex items-end gap-3" method="get"><label class="text-sm font-bold">Review month<input class="mt-1 block rounded-xl border border-line px-3 py-2 font-normal" type="month" name="month" value="<?= e($selectedMonth) ?>"></label><button class="rounded-xl border border-line px-4 py-2 text-sm font-bold">View</button></form><section class="mt-6 rounded-2xl border border-line bg-white p-6 shadow-sm"><h2 class="font-extrabold"><?= $editing?'Edit budget':'Add budget' ?></h2><form class="mt-5 grid gap-4 sm:grid-cols-3" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action" value="<?= $editing?'update':'create' ?>"><?php if($editing): ?><input type="hidden" name="budget_id" value="<?= e($form['id']) ?>"><?php endif; ?><label class="text-sm font-bold">Month<input class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" type="month" name="budget_month" value="<?= e($form['month']) ?>" required></label><label class="text-sm font-bold">Expense category<select class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="category_id" required><option value="">Select</option><?php foreach($categories as $c): ?><option value="<?= (int)$c['id'] ?>" <?= $form['category_id']===(string)$c['id']?'selected':'' ?>><?= e($c['name']) ?></option><?php endforeach; ?></select></label><label class="text-sm font-bold">Amount (PHP)<input class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="amount" value="<?= e($form['amount']) ?>" inputmode="decimal" required></label><button class="rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-dark" <?= !$categories?'disabled':'' ?>><?= $editing?'Save changes':'Add budget' ?></button><?php if($editing): ?><a class="px-4 py-3 text-sm font-bold text-muted" href="budgets.php?month=<?= e($selectedMonth) ?>">Cancel</a><?php endif; ?></form></section><section class="mt-10"><h2 class="text-xl font-extrabold"><?= e((new DateTimeImmutable($start))->format('F Y')) ?> progress</h2><?php if(!$budgets): ?><div class="mt-4 rounded-2xl border border-dashed border-line bg-white p-8 text-center"><p class="font-bold">No budgets for this month</p><p class="mt-2 text-sm text-muted">Create an expense category in Transactions, then add a budget.</p></div><?php else: ?><div class="mt-4 grid gap-4 md:grid-cols-2"><?php foreach($budgets as $b): ?><?php $a=(float)$b['amount'];$spent=(float)$b['spent'];$pct=$a?($spent/$a)*100:0;$remain=$a-$spent;$state=$pct>=100?'exceeded':($pct>=80?'approaching':'within');$bar=$state==='exceeded'?'bg-rose-500':($state==='approaching'?'bg-amber-500':'bg-brand'); ?><article class="rounded-2xl border border-line bg-white p-5 shadow-sm"><div class="flex justify-between gap-3"><div><h3 class="font-extrabold"><?= e($b['name']) ?></h3><p class="mt-1 text-sm text-muted">Budget <?= format_peso((string)$b['amount']) ?> · Spent <?= format_peso((string)$b['spent']) ?></p></div><span class="text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span></div><div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line"><div class="h-full <?= $bar ?>" style="width:<?= min($pct,100) ?>%"></div></div><div class="mt-3 flex justify-between text-sm"><span><?= number_format($pct,0) ?>% used</span><strong class="<?= $remain<0?'text-rose-700':'text-brand' ?>"><?= $remain<0?'Over by '.format_peso((string)abs($remain)):format_peso((string)$remain).' remaining' ?></strong></div><div class="mt-4 flex gap-3"><a class="text-sm font-bold text-brand" href="budgets.php?month=<?= e($selectedMonth) ?>&edit=<?= (int)$b['id'] ?>">Edit</a><form method="post" onsubmit="return confirm('Delete this budget?');"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action" value="delete"><input type="hidden" name="budget_id" value="<?= (int)$b['id'] ?>"><button class="text-sm font-bold text-rose-700">Delete</button></form></div></article><?php endforeach; ?></div><?php endif; ?></section></main><?php require __DIR__.'/includes/footer.php'; ?>
+
+<body class="min-h-screen bg-sand text-ink">
+    <main class="mx-auto max-w-6xl px-6 py-10">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Spending limits</p>
+                <h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Monthly budgets</h1>
+                <p class="mt-2 text-sm text-muted">Set limits for expense categories and monitor progress.</p>
+            </div><a class="rounded-xl border border-line px-4 py-3 text-sm font-bold" href="dashboard.php">Back to
+                dashboard</a>
+        </div><?php if($flash): ?><div
+            class="alert <?= $flash['type']==='success'?'alert-success':'alert-error' ?> mt-6">
+            <?= e($flash['message']) ?></div><?php endif; ?><?php if($errors): ?><div class="alert alert-error mt-6">
+            <ul class="list-inside list-disc"><?php foreach($errors as $error): ?><li><?= e($error) ?></li>
+                <?php endforeach; ?></ul>
+        </div><?php endif; ?><form class="mt-7 flex items-end gap-3" method="get"><label
+                class="text-sm font-bold">Review month<input
+                    class="mt-1 block rounded-xl border border-line px-3 py-2 font-normal" type="month" name="month"
+                    value="<?= e($selectedMonth) ?>"></label><button
+                class="rounded-xl border border-line px-4 py-2 text-sm font-bold">View</button></form>
+        <section class="mt-6 rounded-2xl border border-line bg-white p-6 shadow-sm">
+            <h2 class="font-extrabold"><?= $editing?'Edit budget':'Add budget' ?></h2>
+            <form class="mt-5 grid gap-4 sm:grid-cols-3" method="post"><input type="hidden" name="csrf_token"
+                    value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
+                    value="<?= $editing?'update':'create' ?>"><?php if($editing): ?><input type="hidden"
+                    name="budget_id" value="<?= e($form['id']) ?>"><?php endif; ?><label
+                    class="text-sm font-bold">Month<input
+                        class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" type="month"
+                        name="budget_month" value="<?= e($form['month']) ?>" required></label><label
+                    class="text-sm font-bold">Expense category<select
+                        class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="category_id"
+                        required>
+                        <option value="">Select</option><?php foreach($categories as $c): ?><option
+                            value="<?= (int)$c['id'] ?>" <?= $form['category_id']===(string)$c['id']?'selected':'' ?>>
+                            <?= e($c['name']) ?></option><?php endforeach; ?>
+                    </select></label><label class="text-sm font-bold">Amount (PHP)<input
+                        class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="amount"
+                        value="<?= e($form['amount']) ?>" inputmode="decimal" required></label><button
+                    class="rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-dark"
+                    <?= !$categories?'disabled':'' ?>><?= $editing?'Save changes':'Add budget' ?></button><?php if($editing): ?><a
+                    class="px-4 py-3 text-sm font-bold text-muted"
+                    href="budgets.php?month=<?= e($selectedMonth) ?>">Cancel</a><?php endif; ?></form>
+        </section>
+        <section class="mt-10">
+            <h2 class="text-xl font-extrabold"><?= e((new DateTimeImmutable($start))->format('F Y')) ?> progress</h2>
+            <?php if(!$budgets): ?><div
+                class="mt-4 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
+                <p class="font-bold">No budgets for this month</p>
+                <p class="mt-2 text-sm text-muted">Create an expense category in Transactions, then add a budget.</p>
+            </div><?php else: ?><div class="mt-4 grid gap-4 md:grid-cols-2">
+                <?php foreach($budgets as $b): ?><?php $a=(float)$b['amount'];$spent=(float)$b['spent'];$pct=$a?($spent/$a)*100:0;$remain=$a-$spent;$state=$pct>=100?'exceeded':($pct>=80?'approaching':'within');$bar=$state==='exceeded'?'bg-rose-500':($state==='approaching'?'bg-amber-500':'bg-brand'); ?>
+                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
+                    <div class="flex justify-between gap-3">
+                        <div>
+                            <h3 class="font-extrabold"><?= e($b['name']) ?></h3>
+                            <p class="mt-1 text-sm text-muted">Budget <?= format_peso((string)$b['amount']) ?> · Spent
+                                <?= format_peso((string)$b['spent']) ?></p>
+                        </div><span
+                            class="text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span>
+                    </div>
+                    <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line">
+                        <div class="h-full <?= $bar ?>" style="width:<?= min($pct,100) ?>%"></div>
+                    </div>
+                    <div class="mt-3 flex justify-between text-sm"><span><?= number_format($pct,0) ?>%
+                            used</span><strong
+                            class="<?= $remain<0?'text-rose-700':'text-brand' ?>"><?= $remain<0?'Over by '.format_peso((string)abs($remain)):format_peso((string)$remain).' remaining' ?></strong>
+                    </div>
+                    <div class="mt-4 flex gap-3"><a class="text-sm font-bold text-brand"
+                            href="budgets.php?month=<?= e($selectedMonth) ?>&edit=<?= (int)$b['id'] ?>">Edit</a>
+                        <form method="post" onsubmit="return confirm('Delete this budget?');"><input type="hidden"
+                                name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
+                                value="delete"><input type="hidden" name="budget_id"
+                                value="<?= (int)$b['id'] ?>"><button
+                                class="text-sm font-bold text-rose-700">Delete</button></form>
+                    </div>
+                </article><?php endforeach; ?></div><?php endif; ?>
+        </section>
+    </main><?php require __DIR__.'/includes/footer.php'; ?>

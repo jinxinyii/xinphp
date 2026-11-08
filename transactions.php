@@ -233,8 +233,8 @@ require __DIR__ . '/includes/header.php';
                     class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
                     href="wallets.php">Wallets</a><a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold"
                     href="transactions.php">Transactions</a><a
-                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-                    href="budgets.php">Budgets</a></nav>
+                    class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="budgets.php">Budgets</a>
+            </nav>
             <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token"
                     value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white"
                     type="submit">Log out</button></form>
@@ -264,14 +264,22 @@ require __DIR__ . '/includes/header.php';
                     <form class="mt-4 flex flex-wrap items-end gap-3" action="transactions.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                         <input type="hidden" name="action" value="create_category">
-                        <label class="text-sm font-bold">Name<input class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal" name="category_name" required></label>
-                        <label class="text-sm font-bold">Type<select class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal" name="category_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
-                        <button class="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white" type="submit">Add category</button>
+                        <label class="text-sm font-bold">Name<input
+                                class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal"
+                                name="category_name" required></label>
+                        <label class="text-sm font-bold">Type<select
+                                class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal"
+                                name="category_type">
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select></label>
+                        <button class="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white" type="submit">Add
+                            category</button>
                     </form>
                 </details>
-                <form
-                    class="mt-6 grid gap-5 md:grid-cols-2" action="transactions.php" method="post"><input type="hidden"
-                        name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
+                <form class="mt-6 grid gap-5 md:grid-cols-2" action="transactions.php" method="post"><input
+                        type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden"
+                        name="action"
                         value="<?= $editingTransaction ? 'update' : 'create' ?>"><?php if ($editingTransaction): ?><input
                         type="hidden" name="transaction_id" value="<?= e($transactionForm['id']) ?>"><?php endif; ?>
                     <fieldset>

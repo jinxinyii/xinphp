@@ -171,3 +171,21 @@ function recent_transactions(PDO $pdo, int $userId, int $limit = 5): array
 
     return $statement->fetchAll();
 }
+
+/** @return list<array<string, mixed>> */
+function monthly_budget_progress(PDO $pdo, int $userId, string $monthStart): array
+{
+    $nextMonth = (new DateTimeImmutable($monthStart))->modify('first day of next month')->format('Y-m-d');
+    $statement = $pdo->prepare(
+        "SELECT b.id, b.amount, c.name AS category_name, CAST(COALESCE(SUM(t.amount), 0) AS DECIMAL(14,2)) AS spent
+         FROM budgets b
+         INNER JOIN categories c ON c.id = b.category_id AND c.user_id = b.user_id
+         LEFT JOIN transactions t ON t.category_id = b.category_id AND t.user_id = b.user_id
+             AND t.type = 'expense' AND t.transaction_date >= :month_start AND t.transaction_date < :next_month
+         WHERE b.user_id = :user_id AND b.budget_month = :budget_month
+         GROUP BY b.id, b.amount, c.name ORDER BY c.name"
+    );
+    $statement->execute(['month_start' => $monthStart, 'next_month' => $nextMonth, 'user_id' => $userId, 'budget_month' => $monthStart]);
+
+    return $statement->fetchAll();
+}
