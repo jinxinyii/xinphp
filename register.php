@@ -9,11 +9,19 @@ if (is_logged_in()) {
 }
 
 $errors = [];
-$fullName = '';
+$firstName = '';
+$middleName = '';
+$lastName = '';
+$age = '';
+$birthdate = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fullName = trim((string) ($_POST['full_name'] ?? ''));
+    $firstName = trim((string) ($_POST['first_name'] ?? ''));
+    $middleName = trim((string) ($_POST['middle_name'] ?? ''));
+    $lastName = trim((string) ($_POST['last_name'] ?? ''));
+    $age = trim((string) ($_POST['age'] ?? ''));
+    $birthdate = trim((string) ($_POST['birthdate'] ?? ''));
     $email = trim((string) ($_POST['email'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
     $confirmation = (string) ($_POST['password_confirmation'] ?? '');
@@ -21,8 +29,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Your form expired. Please try again.';
     }
-    if (mb_strlen($fullName) < 2 || mb_strlen($fullName) > 100) {
-        $errors[] = 'Your full name must be between 2 and 100 characters.';
+    if (mb_strlen($firstName) < 1 || mb_strlen($firstName) > 50) {
+        $errors[] = 'Enter a first name between 1 and 50 characters.';
+    }
+    if ($middleName !== '' && mb_strlen($middleName) > 50) {
+        $errors[] = 'Your middle name cannot exceed 50 characters.';
+    }
+    if (mb_strlen($lastName) < 1 || mb_strlen($lastName) > 50) {
+        $errors[] = 'Enter a last name between 1 and 50 characters.';
+    }
+    $submittedAge = filter_var($age, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 130]]);
+    if ($submittedAge === false) {
+        $errors[] = 'Enter a valid age between 0 and 130.';
+    }
+    $birthdateObject = DateTimeImmutable::createFromFormat('!Y-m-d', $birthdate);
+    $birthdateErrors = DateTimeImmutable::getLastErrors();
+    $birthdateIsValid = $birthdateObject instanceof DateTimeImmutable
+        && ($birthdateErrors === false || ($birthdateErrors['warning_count'] === 0 && $birthdateErrors['error_count'] === 0))
+        && $birthdateObject->format('Y-m-d') === $birthdate;
+
+    if (!$birthdateIsValid) {
+        $errors[] = 'Enter a valid birthdate.';
+    } elseif ($birthdateObject > new DateTimeImmutable('today')) {
+        $errors[] = 'Birthdate cannot be in the future.';
+    } elseif ($submittedAge !== false) {
+        $calculatedAge = $birthdateObject->diff(new DateTimeImmutable('today'))->y;
+        if ($submittedAge !== $calculatedAge) {
+            $errors[] = "Your age must match your birthdate (calculated age: {$calculatedAge}).";
+        }
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 191) {
         $errors[] = 'Enter a valid email address.';
@@ -36,9 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $statement = database()->prepare('INSERT INTO users (full_name, email, password) VALUES (:full_name, :email, :password)');
+            $statement = database()->prepare(
+                'INSERT INTO users (first_name, middle_name, last_name, age, birthdate, email, password)
+                 VALUES (:first_name, :middle_name, :last_name, :age, :birthdate, :email, :password)'
+            );
             $statement->execute([
-                'full_name' => $fullName,
+                'first_name' => $firstName,
+                'middle_name' => $middleName !== '' ? $middleName : null,
+                'last_name' => $lastName,
+                'age' => $submittedAge,
+                'birthdate' => $birthdate,
                 'email' => $email,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
             ]);
@@ -69,7 +110,15 @@ require __DIR__ . '/includes/header.php';
             <?php endif; ?>
             <form class="mt-7" action="register.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
-                <div class="form-field"><label for="full_name">Full name</label><input id="full_name" name="full_name" type="text" value="<?= e($fullName) ?>" autocomplete="name" required></div>
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div class="form-field"><label for="first_name">First name</label><input id="first_name" name="first_name" type="text" value="<?= e($firstName) ?>" autocomplete="given-name" required></div>
+                    <div class="form-field"><label for="last_name">Last name</label><input id="last_name" name="last_name" type="text" value="<?= e($lastName) ?>" autocomplete="family-name" required></div>
+                </div>
+                <div class="form-field mt-5"><label for="middle_name">Middle name <span class="font-normal text-muted">(optional)</span></label><input id="middle_name" name="middle_name" type="text" value="<?= e($middleName) ?>" autocomplete="additional-name"></div>
+                <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                    <div class="form-field"><label for="birthdate">Birthdate</label><input id="birthdate" name="birthdate" type="date" value="<?= e($birthdate) ?>" autocomplete="bday" required></div>
+                    <div class="form-field"><label for="age">Age</label><input id="age" name="age" type="number" value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" required></div>
+                </div>
                 <div class="form-field mt-5"><label for="email">Email address</label><input id="email" name="email" type="email" value="<?= e($email) ?>" autocomplete="email" required></div>
                 <div class="form-field mt-5"><label for="password">Password</label><div class="relative"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark" type="button" aria-controls="password" aria-label="Show password">Show</button></div></div>
                 <div class="form-field mt-5"><label for="password_confirmation">Confirm password</label><div class="relative"><input id="password_confirmation" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required><button class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark" type="button" aria-controls="password_confirmation" aria-label="Show password">Show</button></div></div>

@@ -22,6 +22,11 @@ function e(?string $value): string
     return htmlspecialchars($value ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function complete_name(string $firstName, ?string $middleName, string $lastName): string
+{
+    return trim(implode(' ', array_filter([$firstName, $middleName, $lastName], static fn (?string $part): bool => $part !== null && $part !== '')));
+}
+
 function redirect(string $location): never
 {
     header('Location: ' . $location);
@@ -61,6 +66,13 @@ function get_flash(): ?array
 function is_logged_in(): bool
 {
     return isset($_SESSION['user_id']) && is_int($_SESSION['user_id']);
+}
+
+function current_user_id(): int
+{
+    require_auth();
+
+    return $_SESSION['user_id'];
 }
 
 function require_auth(): void

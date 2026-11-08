@@ -22,7 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Enter a valid email address and password.';
     } else {
         try {
-            $statement = database()->prepare('SELECT id, full_name, password FROM users WHERE email = :email LIMIT 1');
+            $statement = database()->prepare(
+                "SELECT id,
+                        COALESCE(first_name, full_name, '') AS first_name,
+                        middle_name,
+                        COALESCE(last_name, '') AS last_name,
+                        password
+                 FROM users
+                 WHERE email = :email
+                 LIMIT 1"
+            );
             $statement->execute(['email' => $email]);
             $user = $statement->fetch();
 
@@ -31,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = (int) $user['id'];
-                $_SESSION['user_name'] = $user['full_name'];
+                $_SESSION['user_name'] = complete_name($user['first_name'], $user['middle_name'], $user['last_name']);
                 redirect('dashboard.php');
             }
         } catch (PDOException|RuntimeException $exception) {
