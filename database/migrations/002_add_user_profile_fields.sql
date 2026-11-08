@@ -1,7 +1,3 @@
--- Run once for databases created before XinPHP collected separate profile fields.
--- This migration intentionally retains full_name so existing account data is not deleted.
--- New columns are nullable for existing accounts; backfill them before making them
--- NOT NULL in a future migration. New registrations validate and supply every field.
 USE xinphp_db;
 
 ALTER TABLE users

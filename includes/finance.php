@@ -10,6 +10,13 @@ const WALLET_PROVIDERS = [
     'Cash', 'Savings Account', 'Other Bank', 'Custom Wallet',
 ];
 
+const WALLET_TYPES = [
+    'cash' => 'Cash',
+    'bank' => 'Bank account',
+    'e_wallet' => 'E-wallet',
+    'other' => 'Other',
+];
+
 function format_peso(string|float|int $amount): string
 {
     return '₱' . number_format((float) $amount, 2);
@@ -48,6 +55,20 @@ function find_owned_category(PDO $pdo, int $categoryId, int $userId): ?array
     return $statement->fetch() ?: null;
 }
 
+/** @return array<string, mixed>|null */
+function find_owned_transaction(PDO $pdo, int $transactionId, int $userId): ?array
+{
+    $statement = $pdo->prepare(
+        'SELECT id, wallet_id, category_id, type, amount, transaction_date, description, notes
+         FROM transactions
+         WHERE id = :transaction_id AND user_id = :user_id
+         LIMIT 1'
+    );
+    $statement->execute(['transaction_id' => $transactionId, 'user_id' => $userId]);
+
+    return $statement->fetch() ?: null;
+}
+
 /**
  * Calculates a wallet balance from the opening balance, income/expenses, and
  * dedicated transfer records. Transfers are excluded from income/expense reports.
@@ -71,4 +92,51 @@ function wallet_current_balance(PDO $pdo, int $walletId, int $userId): ?string
     $wallet = $statement->fetch();
 
     return $wallet ? (string) $wallet['current_balance'] : null;
+}
+
+/**
+ * Returns every wallet owned by a user along with one consistently calculated
+ * balance. Archived wallets can be included for the archive section.
+ *
+ * @return list<array<string, mixed>>
+ */
+function user_wallets_with_balances(PDO $pdo, int $userId, bool $includeArchived = true): array
+{
+    $statement = $pdo->prepare(
+        "SELECT w.id, w.provider_name, w.wallet_type, w.wallet_name, w.opening_balance,
+                w.currency_code, w.is_archived,
+                CAST(w.opening_balance + COALESCE(transaction_totals.net_amount, 0)
+                    + COALESCE(transfer_totals.net_amount, 0) AS DECIMAL(14,2)) AS current_balance
+         FROM wallets w
+         LEFT JOIN (
+             SELECT wallet_id, user_id,
+                    SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) AS net_amount
+             FROM transactions
+             WHERE user_id = :transaction_user_id
+             GROUP BY wallet_id, user_id
+         ) transaction_totals ON transaction_totals.wallet_id = w.id AND transaction_totals.user_id = w.user_id
+         LEFT JOIN (
+             SELECT wallet_id, user_id, SUM(amount_change) AS net_amount
+             FROM (
+                 SELECT destination_wallet_id AS wallet_id, user_id, amount AS amount_change
+                 FROM transfers WHERE user_id = :incoming_transfer_user_id
+                 UNION ALL
+                 SELECT source_wallet_id AS wallet_id, user_id, -amount AS amount_change
+                 FROM transfers WHERE user_id = :outgoing_transfer_user_id
+             ) transfer_changes
+             GROUP BY wallet_id, user_id
+         ) transfer_totals ON transfer_totals.wallet_id = w.id AND transfer_totals.user_id = w.user_id
+         WHERE w.user_id = :wallet_user_id
+           AND (:include_archived = 1 OR w.is_archived = 0)
+         ORDER BY w.is_archived ASC, w.wallet_name ASC"
+    );
+    $statement->execute([
+        'transaction_user_id' => $userId,
+        'incoming_transfer_user_id' => $userId,
+        'outgoing_transfer_user_id' => $userId,
+        'wallet_user_id' => $userId,
+        'include_archived' => $includeArchived ? 1 : 0,
+    ]);
+
+    return $statement->fetchAll();
 }

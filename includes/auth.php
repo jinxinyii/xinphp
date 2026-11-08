@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/** Shared session, CSRF, flash-message, and authentication helpers. */
-
 if (session_status() !== PHP_SESSION_ACTIVE) {
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (($_SERVER['SERVER_PORT'] ?? null) === '443');

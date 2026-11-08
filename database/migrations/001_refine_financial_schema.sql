@@ -1,5 +1,3 @@
--- XinPHP schema refinement for the initial empty database created from schema.sql.
--- Run this once only. It changes columns and constraints but does not drop tables.
 USE xinphp_db;
 
 ALTER TABLE wallets

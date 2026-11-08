@@ -13,7 +13,8 @@ require __DIR__ . '/includes/header.php';
             <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php"><span class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">₱</span>xinPHP</a>
             <nav class="mt-10 flex gap-2 overflow-x-auto md:flex-col" aria-label="Main navigation">
                 <a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold" href="dashboard.php">Overview</a>
-                <span class="rounded-xl px-4 py-3 text-sm text-white/65">Transactions <small class="ml-1 text-xs">Soon</small></span>
+                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="wallets.php">Wallets</a>
+                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="transactions.php">Transactions</a>
                 <span class="rounded-xl px-4 py-3 text-sm text-white/65">Budgets <small class="ml-1 text-xs">Soon</small></span>
             </nav>
             <form class="mt-8 md:mt-auto" action="logout.php" method="post">
@@ -23,7 +24,7 @@ require __DIR__ . '/includes/header.php';
         </aside>
         <main class="px-6 py-10 sm:px-10 lg:px-14">
             <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your overview</p>
-            <h1 class="mt-3 text-4xl font-extrabold tracking-[-.05em]">Welcome back, <?= e($_SESSION['user_name'] ?? 'there') ?>.</h1>
+            <h1 class="mt-3 text-4xl font-extrabold tracking-[-.05em]">Welcome back, <?= e(ucwords(strtolower($_SESSION['user_name'] ?? 'there'))) ?>.</h1>
             <p class="mt-3 max-w-xl leading-7 text-muted">Your dashboard is ready. Start adding income and expenses to see a clear picture of your budget.</p>
             <section class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Budget overview">
                 <article class="rounded-2xl border border-line bg-white p-5 shadow-sm"><p class="text-sm font-bold text-muted">This month</p><p class="mt-4 text-3xl font-extrabold tracking-tight">₱0.00</p><p class="mt-2 text-xs text-muted">No transactions yet</p></article>
