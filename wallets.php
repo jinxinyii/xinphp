@@ -151,7 +151,8 @@ require __DIR__ . '/includes/header.php';
                 </span>
                 xinPHP
             </a>
-            <nav class="mt-8 flex gap-2 overflow-x-auto pb-2 md:mt-10 md:flex-1 md:flex-col md:pb-0"
+            <button class="sidebar-toggle mt-6 inline-flex w-full items-center justify-between rounded-xl border border-white/20 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 md:hidden" type="button" aria-expanded="false" aria-controls="wallets-navigation"><span>Navigation</span><span class="sidebar-toggle-arrow transition-transform" aria-hidden="true">⌄</span></button>
+            <nav id="wallets-navigation" class="mt-3 hidden gap-2 pb-2 md:mt-10 md:flex md:flex-1 md:flex-col md:pb-0"
                 aria-label="Main navigation">
                 <a class="shrink-0 rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white" 
                     href="dashboard.php">
@@ -173,8 +174,12 @@ require __DIR__ . '/includes/header.php';
                     href="budgets.php">
                     Budgets
                 </a>
+                <form class="border-t border-white/15 pt-2 md:hidden" action="logout.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                    <button class="w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white" type="submit">Log out</button>
+                </form>
             </nav>
-            <form class="mt-6 border-t border-white/15 pt-4 md:mt-auto md:pt-6" action="logout.php" method="post">
+            <form class="mt-6 hidden border-t border-white/15 pt-4 md:mt-auto md:block md:pt-6" action="logout.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                 <button
                     class="mt-2 w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"

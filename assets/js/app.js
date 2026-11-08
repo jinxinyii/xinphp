@@ -32,3 +32,32 @@ function filterTransactionCategories() {
 
 transactionTypeInputs.forEach((input) => input.addEventListener('change', filterTransactionCategories));
 filterTransactionCategories();
+
+document.querySelectorAll('.sidebar-toggle').forEach((button) => {
+    const navigation = document.getElementById(button.getAttribute('aria-controls'));
+
+    if (!navigation) return;
+
+    const closeNavigation = () => {
+        navigation.classList.add('hidden');
+        navigation.classList.remove('flex', 'flex-col');
+        button.setAttribute('aria-expanded', 'false');
+        button.querySelector('.sidebar-toggle-arrow')?.classList.remove('rotate-180');
+    };
+
+    button.addEventListener('click', () => {
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+        if (isExpanded) {
+            closeNavigation();
+            return;
+        }
+
+        navigation.classList.remove('hidden');
+        navigation.classList.add('flex', 'flex-col');
+        button.setAttribute('aria-expanded', 'true');
+        button.querySelector('.sidebar-toggle-arrow')?.classList.add('rotate-180');
+    });
+
+    navigation.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNavigation));
+});
