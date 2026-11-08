@@ -35,6 +35,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Your form expired. Please try again.';
+    } elseif ($action === 'create_category') {
+        $categoryName = trim((string) ($_POST['category_name'] ?? ''));
+        $categoryType = (string) ($_POST['category_type'] ?? '');
+
+        if (mb_strlen($categoryName) < 1 || mb_strlen($categoryName) > 100) {
+            $errors[] = 'Category name must be between 1 and 100 characters.';
+        }
+        if (!in_array($categoryType, ['income', 'expense'], true)) {
+            $errors[] = 'Choose income or expense for the category.';
+        }
+        if (!$errors) {
+            try {
+                $statement = $pdo->prepare('INSERT INTO categories (user_id, name, type) VALUES (:user_id, :name, :type)');
+                $statement->execute(['user_id' => $userId, 'name' => $categoryName, 'type' => $categoryType]);
+                set_flash('success', 'Category added. You can now use it in a transaction.');
+                redirect('transactions.php#transaction-form');
+            } catch (PDOException $exception) {
+                $errors[] = $exception->getCode() === '23000'
+                    ? 'You already have a category with that name and type.'
+                    : 'We could not save your category. Please try again.';
+            }
+        }
     } elseif ($action === 'delete') {
         $transactionId = filter_var($_POST['transaction_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         $transaction = $transactionId ? find_owned_transaction($pdo, $transactionId, $userId) : null;
@@ -236,7 +258,18 @@ require __DIR__ . '/includes/header.php';
                 <h2 class="text-lg font-extrabold"><?= $editingTransaction ? 'Edit transaction' : 'Add transaction' ?>
                 </h2><?php if (!$walletOptions || !$categoryOptions): ?><p
                     class="mt-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">You need at least one active wallet
-                    and category before adding a transaction.</p><?php endif; ?><form
+                    and category before adding a transaction.</p><?php endif; ?>
+                <details class="mt-4 rounded-xl bg-sand p-4">
+                    <summary class="cursor-pointer text-sm font-bold text-brand">Add a custom category</summary>
+                    <form class="mt-4 flex flex-wrap items-end gap-3" action="transactions.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                        <input type="hidden" name="action" value="create_category">
+                        <label class="text-sm font-bold">Name<input class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal" name="category_name" required></label>
+                        <label class="text-sm font-bold">Type<select class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal" name="category_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+                        <button class="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white" type="submit">Add category</button>
+                    </form>
+                </details>
+                <form
                     class="mt-6 grid gap-5 md:grid-cols-2" action="transactions.php" method="post"><input type="hidden"
                         name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
                         value="<?= $editingTransaction ? 'update' : 'create' ?>"><?php if ($editingTransaction): ?><input
