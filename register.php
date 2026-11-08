@@ -98,33 +98,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'xinPHP | Create account';
 require __DIR__ . '/includes/header.php';
 ?>
+
 <body class="min-h-screen bg-sand px-5 py-8 text-ink sm:grid sm:place-items-center">
     <main class="mx-auto w-full max-w-md">
-        <a class="mb-8 inline-flex items-center gap-3 text-xl font-extrabold tracking-tight text-brand" href="index.php"><span class="grid size-9 place-items-center rounded-xl bg-brand text-lg text-mint">₱</span>xinPHP</a>
+        <a class="mb-8 inline-flex items-center gap-3 text-xl font-extrabold tracking-tight text-brand"
+            href="index.php"><span
+                class="grid size-9 place-items-center rounded-xl bg-brand text-lg text-mint">₱</span>xinPHP</a>
         <section class="auth-card">
             <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Start tracking</p>
             <h1 class="mt-3 text-3xl font-extrabold tracking-[-.045em]">Create your account</h1>
             <p class="mt-2 text-sm leading-6 text-muted">Set up your private space for every peso.</p>
             <?php if ($errors): ?>
-                <div class="alert alert-error mt-6" role="alert"><ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div>
+            <div class="alert alert-error mt-6" role="alert">
+                <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
+                    <?php endforeach; ?></ul>
+            </div>
             <?php endif; ?>
             <form class="mt-7" action="register.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="form-field"><label for="first_name">First name</label><input id="first_name" name="first_name" type="text" value="<?= e($firstName) ?>" autocomplete="given-name" required></div>
-                    <div class="form-field"><label for="last_name">Last name</label><input id="last_name" name="last_name" type="text" value="<?= e($lastName) ?>" autocomplete="family-name" required></div>
+                    <div class="form-field"><label for="first_name">First name</label><input id="first_name"
+                            name="first_name" type="text" value="<?= e($firstName) ?>" autocomplete="given-name"
+                            required></div>
+                    <div class="form-field"><label for="last_name">Last name</label><input id="last_name"
+                            name="last_name" type="text" value="<?= e($lastName) ?>" autocomplete="family-name"
+                            required></div>
                 </div>
-                <div class="form-field mt-5"><label for="middle_name">Middle name <span class="font-normal text-muted">(optional)</span></label><input id="middle_name" name="middle_name" type="text" value="<?= e($middleName) ?>" autocomplete="additional-name"></div>
+                <div class="form-field mt-5"><label for="middle_name">Middle name <span
+                            class="font-normal text-muted">(optional)</span></label><input id="middle_name"
+                        name="middle_name" type="text" value="<?= e($middleName) ?>" autocomplete="additional-name">
+                </div>
                 <div class="mt-5 grid gap-5 sm:grid-cols-2">
-                    <div class="form-field"><label for="birthdate">Birthdate</label><input id="birthdate" name="birthdate" type="date" value="<?= e($birthdate) ?>" autocomplete="bday" required></div>
-                    <div class="form-field"><label for="age">Age</label><input id="age" name="age" type="number" value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" required></div>
+                    <div class="form-field"><label for="birthdate">Birthdate</label><input id="birthdate"
+                            name="birthdate" type="date" value="<?= e($birthdate) ?>" autocomplete="bday" required>
+                    </div>
+                    <div class="form-field"><label for="age">Age</label><input id="age" name="age" type="number"
+                            value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" required></div>
                 </div>
-                <div class="form-field mt-5"><label for="email">Email address</label><input id="email" name="email" type="email" value="<?= e($email) ?>" autocomplete="email" required></div>
-                <div class="form-field mt-5"><label for="password">Password</label><div class="relative"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark" type="button" aria-controls="password" aria-label="Show password">Show</button></div></div>
-                <div class="form-field mt-5"><label for="password_confirmation">Confirm password</label><div class="relative"><input id="password_confirmation" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required><button class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark" type="button" aria-controls="password_confirmation" aria-label="Show password">Show</button></div></div>
-                <button class="mt-7 w-full rounded-xl bg-brand px-4 py-3.5 font-bold text-white shadow-lg shadow-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand/20" type="submit">Create account</button>
+                <div class="form-field mt-5"><label for="email">Email address</label><input id="email" name="email"
+                        type="email" value="<?= e($email) ?>" autocomplete="email" required></div>
+                <div class="form-field mt-5"><label for="password">Password</label>
+                    <div class="relative"><input id="password" name="password" type="password" minlength="8"
+                            autocomplete="new-password" required><button
+                            class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark"
+                            type="button" aria-controls="password" aria-label="Show password">Show</button></div>
+                </div>
+                <div class="form-field mt-5"><label for="password_confirmation">Confirm password</label>
+                    <div class="relative"><input id="password_confirmation" name="password_confirmation" type="password"
+                            minlength="8" autocomplete="new-password" required><button
+                            class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark"
+                            type="button" aria-controls="password_confirmation" aria-label="Show password">Show</button>
+                    </div>
+                </div>
+                <button
+                    class="mt-7 w-full rounded-xl bg-brand px-4 py-3.5 font-bold text-white shadow-lg shadow-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand/20"
+                    type="submit">Create account</button>
             </form>
-            <p class="mt-7 text-center text-sm text-muted">Already have an account? <a class="font-bold text-brand hover:text-brand-dark" href="index.php">Log in</a></p>
+            <p class="mt-7 text-center text-sm text-muted">Already have an account? <a
+                    class="font-bold text-brand hover:text-brand-dark" href="index.php">Log in</a></p>
         </section>
     </main>
-<?php require __DIR__ . '/includes/footer.php'; ?>
+    <?php require __DIR__ . '/includes/footer.php'; ?>

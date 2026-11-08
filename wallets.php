@@ -141,38 +141,126 @@ $flash = get_flash();
 $pageTitle = 'xinPHP | Wallets';
 require __DIR__ . '/includes/header.php';
 ?>
+
 <body class="min-h-screen bg-sand text-ink">
     <div class="min-h-screen md:grid md:grid-cols-[16rem_1fr]">
         <aside class="bg-brand px-6 py-7 text-white md:min-h-screen">
-            <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php"><span class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">₱</span>xinPHP</a>
+            <a class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight" href="dashboard.php"><span
+                    class="grid size-9 place-items-center rounded-xl bg-mint text-lg text-brand-dark">₱</span>xinPHP</a>
             <nav class="mt-10 flex gap-2 overflow-x-auto md:flex-col" aria-label="Main navigation">
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="dashboard.php">Overview</a>
+                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
+                    href="dashboard.php">Overview</a>
                 <a class="rounded-xl bg-white/15 px-4 py-3 text-sm font-bold" href="wallets.php">Wallets</a>
-                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10" href="transactions.php">Transactions</a>
-                <span class="rounded-xl px-4 py-3 text-sm text-white/65">Budgets <small class="ml-1 text-xs">Soon</small></span>
+                <a class="rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
+                    href="transactions.php">Transactions</a>
+                <span class="rounded-xl px-4 py-3 text-sm text-white/65">Budgets <small
+                        class="ml-1 text-xs">Soon</small></span>
             </nav>
-            <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white" type="submit">Log out</button></form>
+            <form class="mt-8 md:mt-auto" action="logout.php" method="post"><input type="hidden" name="csrf_token"
+                    value="<?= e(csrf_token()) ?>"><button class="text-sm font-bold text-mint hover:text-white"
+                    type="submit">Log out</button></form>
         </aside>
         <main class="px-6 py-10 sm:px-10 lg:px-14">
-            <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your accounts</p><h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Wallets</h1><p class="mt-2 text-sm leading-6 text-muted">Track cash, bank accounts, and e-wallets in one place.</p></div></div>
-            <?php if ($flash): ?><div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status"><?= e($flash['message']) ?></div><?php endif; ?>
-            <?php if ($errors): ?><div class="alert alert-error mt-7" role="alert"><ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your accounts</p>
+                    <h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Wallets</h1>
+                    <p class="mt-2 text-sm leading-6 text-muted">Track cash, bank accounts, and e-wallets in one place.
+                    </p>
+                </div>
+            </div>
+            <?php if ($flash): ?><div
+                class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status">
+                <?= e($flash['message']) ?></div><?php endif; ?>
+            <?php if ($errors): ?><div class="alert alert-error mt-7" role="alert">
+                <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
+                    <?php endforeach; ?></ul>
+            </div><?php endif; ?>
             <section class="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_23rem]">
                 <div>
                     <h2 class="text-lg font-extrabold">Active wallets</h2>
                     <?php if (!$activeWallets): ?>
-                        <div class="mt-4 rounded-2xl border border-dashed border-line bg-white p-8 text-center"><p class="font-bold">No wallets yet</p><p class="mt-2 text-sm text-muted">Add your cash, bank, or e-wallet account to get started.</p></div>
+                    <div class="mt-4 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
+                        <p class="font-bold">No wallets yet</p>
+                        <p class="mt-2 text-sm text-muted">Add your cash, bank, or e-wallet account to get started.</p>
+                    </div>
                     <?php else: ?>
-                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
-                            <?php foreach ($activeWallets as $wallet): ?>
-                                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm"><div class="flex items-start justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wide text-muted"><?= e(str_replace('_', ' ', $wallet['wallet_type'])) ?></p><h3 class="mt-1 font-extrabold"><?= e($wallet['wallet_name']) ?></h3><p class="mt-1 text-sm text-muted"><?= e($wallet['provider_name']) ?></p></div><a class="text-sm font-bold text-brand hover:text-brand-dark" href="wallets.php?edit=<?= (int) $wallet['id'] ?>">Edit</a></div><p class="mt-6 text-2xl font-extrabold tracking-tight"><?= format_peso((string) $wallet['current_balance']) ?></p><p class="mt-1 text-xs text-muted">Current balance · PHP</p><form class="mt-5" action="wallets.php" method="post" onsubmit="return confirm('Archive this wallet? Its history will be kept.');"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action" value="archive"><input type="hidden" name="wallet_id" value="<?= (int) $wallet['id'] ?>"><button class="text-xs font-bold text-muted hover:text-ink" type="submit">Archive wallet</button></form></article>
-                            <?php endforeach; ?>
-                        </div>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        <?php foreach ($activeWallets as $wallet): ?>
+                        <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-muted">
+                                        <?= e(str_replace('_', ' ', $wallet['wallet_type'])) ?></p>
+                                    <h3 class="mt-1 font-extrabold"><?= e($wallet['wallet_name']) ?></h3>
+                                    <p class="mt-1 text-sm text-muted"><?= e($wallet['provider_name']) ?></p>
+                                </div><a class="text-sm font-bold text-brand hover:text-brand-dark"
+                                    href="wallets.php?edit=<?= (int) $wallet['id'] ?>">Edit</a>
+                            </div>
+                            <p class="mt-6 text-2xl font-extrabold tracking-tight">
+                                <?= format_peso((string) $wallet['current_balance']) ?></p>
+                            <p class="mt-1 text-xs text-muted">Current balance · PHP</p>
+                            <form class="mt-5" action="wallets.php" method="post"
+                                onsubmit="return confirm('Archive this wallet? Its history will be kept.');"><input
+                                    type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden"
+                                    name="action" value="archive"><input type="hidden" name="wallet_id"
+                                    value="<?= (int) $wallet['id'] ?>"><button
+                                    class="text-xs font-bold text-muted hover:text-ink" type="submit">Archive
+                                    wallet</button></form>
+                        </article>
+                        <?php endforeach; ?>
+                    </div>
                     <?php endif; ?>
                 </div>
-                <section id="wallet-form" class="rounded-2xl border border-line bg-white p-6 shadow-sm"><h2 class="text-lg font-extrabold"><?= $editingWallet ? 'Edit wallet' : 'Add a wallet' ?></h2><p class="mt-1 text-sm text-muted">Balances are shown in Philippine Peso.</p><form class="mt-6" action="wallets.php" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action" value="<?= $editingWallet ? 'update' : 'create' ?>"><?php if ($editingWallet): ?><input type="hidden" name="wallet_id" value="<?= e($walletForm['id']) ?>"><?php endif; ?><div class="form-field"><label for="wallet_name">Wallet name</label><input id="wallet_name" name="wallet_name" value="<?= e($walletForm['wallet_name']) ?>" placeholder="My GCash" required></div><div class="form-field mt-5"><label for="provider_name">Provider</label><input id="provider_name" name="provider_name" value="<?= e($walletForm['provider_name']) ?>" list="wallet-providers" placeholder="GCash or your bank" required><datalist id="wallet-providers"><?php foreach (WALLET_PROVIDERS as $provider): ?><option value="<?= e($provider) ?>"><?php endforeach; ?></datalist></div><div class="form-field mt-5"><label for="wallet_type">Wallet type</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="wallet_type" name="wallet_type" required><?php foreach (WALLET_TYPES as $value => $label): ?><option value="<?= e($value) ?>" <?= $walletForm['wallet_type'] === $value ? 'selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></div><div class="form-field mt-5"><label for="opening_balance">Opening balance</label><input id="opening_balance" name="opening_balance" type="text" inputmode="decimal" value="<?= e($walletForm['opening_balance']) ?>" placeholder="0.00" required></div><button class="mt-6 w-full rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-dark" type="submit"><?= $editingWallet ? 'Save changes' : 'Add wallet' ?></button><?php if ($editingWallet): ?><a class="mt-3 block text-center text-sm font-bold text-muted hover:text-ink" href="wallets.php">Cancel editing</a><?php endif; ?></form></section>
+                <section id="wallet-form" class="rounded-2xl border border-line bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-extrabold"><?= $editingWallet ? 'Edit wallet' : 'Add a wallet' ?></h2>
+                    <p class="mt-1 text-sm text-muted">Balances are shown in Philippine Peso.</p>
+                    <form class="mt-6" action="wallets.php" method="post"><input type="hidden" name="csrf_token"
+                            value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
+                            value="<?= $editingWallet ? 'update' : 'create' ?>"><?php if ($editingWallet): ?><input
+                            type="hidden" name="wallet_id" value="<?= e($walletForm['id']) ?>"><?php endif; ?><div
+                            class="form-field"><label for="wallet_name">Wallet name</label><input id="wallet_name"
+                                name="wallet_name" value="<?= e($walletForm['wallet_name']) ?>" placeholder="My GCash"
+                                required></div>
+                        <div class="form-field mt-5"><label for="provider_name">Provider</label><input
+                                id="provider_name" name="provider_name" value="<?= e($walletForm['provider_name']) ?>"
+                                list="wallet-providers" placeholder="GCash or your bank" required><datalist
+                                id="wallet-providers"><?php foreach (WALLET_PROVIDERS as $provider): ?><option
+                                    value="<?= e($provider) ?>"><?php endforeach; ?></datalist></div>
+                        <div class="form-field mt-5"><label for="wallet_type">Wallet type</label><select
+                                class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
+                                id="wallet_type" name="wallet_type"
+                                required><?php foreach (WALLET_TYPES as $value => $label): ?><option
+                                    value="<?= e($value) ?>"
+                                    <?= $walletForm['wallet_type'] === $value ? 'selected' : '' ?>><?= e($label) ?>
+                                </option><?php endforeach; ?></select></div>
+                        <div class="form-field mt-5"><label for="opening_balance">Opening balance</label><input
+                                id="opening_balance" name="opening_balance" type="text" inputmode="decimal"
+                                value="<?= e($walletForm['opening_balance']) ?>" placeholder="0.00" required></div>
+                        <button
+                            class="mt-6 w-full rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-dark"
+                            type="submit"><?= $editingWallet ? 'Save changes' : 'Add wallet' ?></button><?php if ($editingWallet): ?><a
+                            class="mt-3 block text-center text-sm font-bold text-muted hover:text-ink"
+                            href="wallets.php">Cancel editing</a><?php endif; ?>
+                    </form>
+                </section>
             </section>
-            <?php if ($archivedWallets): ?><section class="mt-10"><h2 class="text-lg font-extrabold">Archived wallets</h2><div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"><?php foreach ($archivedWallets as $wallet): ?><article class="rounded-2xl border border-line bg-white/60 p-5"><p class="font-bold"><?= e($wallet['wallet_name']) ?></p><p class="mt-1 text-sm text-muted"><?= e($wallet['provider_name']) ?> · <?= format_peso((string) $wallet['current_balance']) ?></p><form class="mt-4" action="wallets.php" method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="action" value="reactivate"><input type="hidden" name="wallet_id" value="<?= (int) $wallet['id'] ?>"><button class="text-sm font-bold text-brand hover:text-brand-dark" type="submit">Restore wallet</button></form></article><?php endforeach; ?></div></section><?php endif; ?>
+            <?php if ($archivedWallets): ?><section class="mt-10">
+                <h2 class="text-lg font-extrabold">Archived wallets</h2>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <?php foreach ($archivedWallets as $wallet): ?><article
+                        class="rounded-2xl border border-line bg-white/60 p-5">
+                        <p class="font-bold"><?= e($wallet['wallet_name']) ?></p>
+                        <p class="mt-1 text-sm text-muted"><?= e($wallet['provider_name']) ?> ·
+                            <?= format_peso((string) $wallet['current_balance']) ?></p>
+                        <form class="mt-4" action="wallets.php" method="post"><input type="hidden" name="csrf_token"
+                                value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
+                                value="reactivate"><input type="hidden" name="wallet_id"
+                                value="<?= (int) $wallet['id'] ?>"><button
+                                class="text-sm font-bold text-brand hover:text-brand-dark" type="submit">Restore
+                                wallet</button></form>
+                    </article><?php endforeach; ?></div>
+            </section><?php endif; ?>
         </main>
     </div>
-<?php require __DIR__ . '/includes/footer.php'; ?>
+    <?php require __DIR__ . '/includes/footer.php'; ?>
