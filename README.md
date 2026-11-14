@@ -1,66 +1,179 @@
 # XinPHP
 
-A personal PHP budget-tracker starter application built with PHP, MySQL, PDO, and Tailwind CSS v4.
+A personal finance and budget-tracking web application built with **PHP**, **MySQL**, **PDO**, **JavaScript**, and **Tailwind CSS v4**.
 
-## Local setup
+XinPHP is designed to help users organize their wallets, record income and expenses, transfer money between wallets, and monitor monthly budgets from one dashboard. The project is currently under development.
 
-1. Start **Apache** and **MySQL** in XAMPP.
-2. In phpMyAdmin, import `database/schema.sql` to create the `xinphp_db` database and `users` table.
-3. Configure database environment variables if your local MySQL setup differs from the XAMPP defaults:
-   - `DB_HOST` (default: `127.0.0.1`)
-   - `DB_PORT` (default: `3306`)
-   - `DB_NAME` (default: `xinphp_db`)
-   - `DB_USER` (default: `root`)
-   - `DB_PASSWORD` (default: empty)
-4. Build the stylesheet with the official Tailwind CLI:
+## Features
 
-   ```powershell
-   npx @tailwindcss/cli -i ./src/input.css -o ./assets/css/output.css --watch
-   ```
+- **Financial dashboard** – View financial summaries and recent activity.
+- **Wallet management** – Organize balances across cash, e-wallets, and bank accounts.
+- **Transaction management** – Record and manage income and expenses.
+- **Wallet transfers** – Track money moved between wallets separately from income and expenses.
+- **Budget management** – Set and monitor monthly budgets.
+- **User accounts** – Register and sign in to a personal account.
 
-   The project also includes equivalent npm scripts when `npm` is available:
+Feature availability may change as development continues.
 
-   ```powershell
-   npm run build:css
-   # or: npm run watch:css
-   ```
+## Technology stack
 
-5. Open `http://localhost/xinphp/` in your browser.
+- PHP
+- MySQL
+- PDO for database access
+- HTML and JavaScript
+- Tailwind CSS v4
+- XAMPP for local development
 
-Never commit real database passwords. Use environment variables or an ignored `.env` file for local credentials.
+## Requirements
 
-## Database imports and migrations
+- Windows, macOS, or Linux
+- PHP with the PDO MySQL extension enabled
+- MySQL or MariaDB
+- Apache or another PHP-compatible web server
+- Node.js and npm for building Tailwind CSS
+- A modern web browser
 
-For a fresh installation, open phpMyAdmin, select the **Import** tab, choose `database/schema.sql`, and click **Import**.
+## Local installation
 
-For a database created from XinPHP's earlier schema, import `database/migrations/001_refine_financial_schema.sql` once. It is an upgrade script, not a fresh-install script; do not run it twice. Back up a populated database before applying any future migration.
+### 1. Get the project
 
-The separate `002_add_user_profile_fields.sql` migration keeps the old `full_name` column so existing accounts are not lost. On a populated database, manually fill each account's first name, last name, age, and birthdate before a later migration makes those new columns mandatory.
+Clone the repository or download the source code, then place the project folder in your local web server's document root.
 
-## Useful reporting queries
+For XAMPP on Windows, the usual location is:
 
-Wallet balance (opening balance + income - expenses + transfers in - transfers out):
-
-```sql
-SELECT w.id, w.wallet_name,
-       w.opening_balance
-       + COALESCE((SELECT SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE -t.amount END)
-                   FROM transactions t WHERE t.wallet_id = w.id AND t.user_id = w.user_id), 0)
-       + COALESCE((SELECT SUM(CASE WHEN tr.destination_wallet_id = w.id THEN tr.amount ELSE -tr.amount END)
-                   FROM transfers tr
-                   WHERE tr.user_id = w.user_id
-                     AND (tr.source_wallet_id = w.id OR tr.destination_wallet_id = w.id)), 0) AS current_balance
-FROM wallets w
-WHERE w.user_id = :user_id;
+```text
+C:\xampp\htdocs\xinphp
 ```
 
-Monthly expense total:
+### 2. Start XAMPP
 
-```sql
-SELECT COALESCE(SUM(amount), 0) AS monthly_expenses
-FROM transactions
-WHERE user_id = :user_id
-  AND type = 'expense'
-  AND transaction_date >= :month_start
-  AND transaction_date < :next_month_start;
+Open the XAMPP Control Panel and start **Apache** and **MySQL**.
+
+### 3. Create the database
+
+1. Open `http://localhost/phpmyadmin/`.
+2. Select the **Import** tab.
+3. Choose `database/schema.sql`.
+4. Start the import.
+
+The default database name is `xinphp_db`.
+
+### 4. Configure the database connection
+
+XinPHP reads the following environment variables and uses the listed local defaults when they are not set:
+
+| Variable | Default |
+|---|---|
+| `DB_HOST` | `127.0.0.1` |
+| `DB_PORT` | `3306` |
+| `DB_NAME` | `xinphp_db` |
+| `DB_USER` | `root` |
+| `DB_PASSWORD` | Empty |
+
+Update the values to match your local MySQL configuration. Do not commit real database passwords or other secrets to GitHub. Keep local environment files out of version control.
+
+### 5. Install frontend dependencies
+
+From the project directory, install the npm dependencies:
+
+```powershell
+npm install
 ```
+
+### 6. Build Tailwind CSS
+
+To build the stylesheet once:
+
+```powershell
+npm run build:css
+```
+
+To rebuild the stylesheet automatically while developing:
+
+```powershell
+npm run watch:css
+```
+
+The generated stylesheet is written to `assets/css/output.css`.
+
+### 7. Open XinPHP
+
+Visit:
+
+```text
+http://localhost/xinphp/
+```
+
+## Database migrations
+
+`database/schema.sql` is the schema to use for a fresh installation.
+
+If you are upgrading a database created from an earlier XinPHP schema, review the migration files in `database/migrations/` and apply only the migration appropriate for that database version.
+
+- `001_refine_financial_schema.sql` is an upgrade migration. It is not a fresh-install script and should not be run more than once on the same database.
+- `002_add_user_profile_fields.sql` adds profile fields while retaining the legacy `full_name` column for existing accounts. For an existing populated database, fill in the required profile information before applying any later migration that makes those fields mandatory.
+
+**Back up your database before applying migrations.** Do not import the fresh-install schema over a database that contains data you want to keep.
+
+## Project structure
+
+```text
+xinphp/
+├── assets/
+│   ├── css/
+│   │   └── output.css
+│   ├── images/
+│   └── js/
+│       └── app.js
+├── config/
+│   └── database.php
+├── database/
+│   ├── migrations/
+│   └── schema.sql
+├── includes/
+│   ├── auth.php
+│   ├── finance.php
+│   ├── footer.php
+│   └── header.php
+├── src/
+│   └── input.css
+├── budgets.php
+├── dashboard.php
+├── index.php
+├── logout.php
+├── register.php
+├── transactions.php
+├── transfers.php
+├── wallets.php
+├── package.json
+└── README.md
+```
+
+## Financial calculation notes
+
+- Wallet balances account for the opening balance, income, expenses, incoming transfers, and outgoing transfers.
+- Transfers between a user's own wallets are tracked separately; they should not be counted as income or expenses.
+- Monthly expense totals include expense transactions within the selected month.
+
+## Security considerations
+
+XinPHP handles personal financial information. Before deploying it to a public hosting service:
+
+- Use unique, strong database credentials and keep secrets out of the repository.
+- Use HTTPS.
+- Ensure database queries use prepared statements.
+- Enforce account ownership checks on every operation involving a user's financial records.
+- Protect state-changing requests against CSRF and escape output before displaying user-provided values.
+- Disable public error display and log errors privately.
+- Back up the database regularly.
+- Test access controls with separate user accounts before allowing other people to use the application.
+
+A local development setup is not automatically production-ready. Review the hosting provider's PHP, MySQL, HTTPS, configuration, and backup capabilities before deploying real financial data.
+
+## Development status
+
+XinPHP is an ongoing project. Features, database structure, and deployment instructions may change as development progresses.
+
+## License
+
+No license has been specified yet. Unless a license is added to this repository, the default copyright rules apply and others should not assume they have permission to reuse, modify, or distribute the project.
