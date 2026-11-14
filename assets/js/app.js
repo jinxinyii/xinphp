@@ -100,7 +100,6 @@ if (birthdateInput && ageInput) {
     birthdateInput.addEventListener('change', updateAgeFromBirthdate);
     updateAgeFromBirthdate();
 }
-<<<<<<< HEAD
 
 const transactionDialog = document.getElementById('transaction-form');
 
@@ -127,5 +126,3 @@ if (transactionDialog instanceof HTMLDialogElement) {
         transactionDialog.showModal();
     }
 }
-=======
->>>>>>> c83d7030e3544987cabe1afc9ade26263b9cd767
