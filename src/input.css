@@ -35,6 +35,14 @@
         @apply w-full rounded-xl border border-line px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-brand focus:ring-4 focus:ring-brand/10;
     }
 
+    .form-field input.password-input {
+        padding-right: 5rem;
+    }
+
+    input.password-input::-ms-reveal {
+        display: none;
+    }
+
     .alert {
         @apply mb-5 rounded-xl border px-4 py-3 text-sm leading-6;
     }
@@ -57,4 +65,132 @@
     aside nav { scrollbar-width: none; }
     aside nav::-webkit-scrollbar { display: none; }
     aside nav a, aside nav span { white-space: nowrap; }
+}
+
+
+.transaction-dialog {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 92dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: #fff;
+    box-shadow: 0 -1rem 3rem rgb(24 48 42 / 18%);
+}
+
+.transaction-dialog::backdrop {
+    background: rgb(24 48 42 / 55%);
+    backdrop-filter: blur(2px);
+}
+
+.transaction-dialog-shell {
+    display: flex;
+    max-height: 92dvh;
+    flex-direction: column;
+}
+
+.transaction-dialog-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.transaction-dialog-footer {
+    display: flex;
+    flex: 0 0 auto;
+    gap: .75rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    background: #fff;
+}
+
+.transactions-main {
+    padding: 1.75rem 1rem 7rem;
+}
+
+.mobile-transaction-cta {
+    position: fixed;
+    right: 1.25rem;
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: 0;
+    border-radius: 9999px;
+    padding: .9rem 1.25rem;
+    background: #0f5c46;
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 12px 28px rgb(15 92 70 / 25%);
+}
+
+@media (min-width: 768px) {
+    .transaction-dialog {
+        inset: 0;
+        width: min(100% - 2rem, 42rem);
+        max-height: 88dvh;
+        margin: auto;
+        border-radius: 1.25rem;
+        box-shadow: 0 1.5rem 4rem rgb(24 48 42 / 22%);
+    }
+
+    .transaction-dialog-shell { max-height: 88dvh; }
+    .transactions-main { padding: 2.5rem 2.5rem 2.5rem; }
+    .mobile-transaction-cta { display: none; }
+}
+
+@media (min-width: 1024px) {
+    .transactions-main { padding-right: 3.5rem; padding-left: 3.5rem; }
+}
+
+
+.desktop-transaction-cta { display: none; }
+.transaction-type-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.transaction-type-option { display: flex; min-height: 3rem; align-items: center; justify-content: center; gap: .5rem; border: 1px solid var(--color-line); border-radius: .75rem; padding: .75rem; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.transaction-type-option:has(input:checked) { border-color: #0f5c46; background: #e5faee; color: #0f5c46; }
+.transaction-field-grid { display: grid; gap: 1.25rem; }
+.transaction-amount-wrap { position: relative; }
+.transaction-amount-prefix { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.125rem; font-weight: 700; color: var(--color-muted); }
+.transaction-amount-input { padding: 1rem 1rem 1rem 2.5rem !important; font-size: 1.25rem !important; font-weight: 800 !important; }
+@media (min-width: 640px) { .transaction-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 768px) { .desktop-transaction-cta { display: inline-flex; } }
+
+.transaction-dialog {
+    height: 92dvh;
+}
+
+.transaction-dialog-shell {
+    height: 100%;
+    min-height: 0;
+}
+
+.transaction-dialog form {
+    min-height: 0;
+}
+
+.transaction-dialog-body {
+    min-height: 0;
+    flex: 1 1 0%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
+}
+
+.transaction-dialog-footer {
+    position: relative;
+    z-index: 2;
+}
+
+@media (min-width: 768px) {
+    .transaction-dialog {
+        height: 88dvh;
+    }
 }

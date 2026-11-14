@@ -112,7 +112,7 @@ require __DIR__ . '/includes/header.php';
                         <div class="flex items-center justify-between gap-4">
                             <label for="password">Password</label>
                         </div>
-                        <div class="relative"><input id="password" name="password" type="password"
+                        <div class="relative"><input id="password" name="password" type="password" class="password-input"
                                 placeholder="Enter your password" autocomplete="current-password" required><button
                                 class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark"
                                 type="button" aria-controls="password" aria-label="Show password">Show</button></div>

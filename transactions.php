@@ -10,6 +10,7 @@ $pdo = database();
 $errors = [];
 $flash = get_flash();
 $editingTransaction = null;
+$openTransactionDialog = false;
 $transactionForm = [
     'id' => '', 'type' => 'expense', 'description' => '', 'amount' => '',
     'wallet_id' => '', 'category_id' => '', 'transaction_date' => date('Y-m-d'), 'notes' => '',
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statement = $pdo->prepare('INSERT INTO categories (user_id, name, type) VALUES (:user_id, :name, :type)');
                 $statement->execute(['user_id' => $userId, 'name' => $categoryName, 'type' => $categoryType]);
                 set_flash('success', 'Category added. You can now use it in a transaction.');
-                redirect('transactions.php#transaction-form');
+                redirect('transactions.php#category-tools');
             } catch (PDOException $exception) {
                 $errors[] = $exception->getCode() === '23000'
                     ? 'You already have a category with that name and type.'
@@ -74,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif (in_array($action, ['create', 'update'], true)) {
+        $openTransactionDialog = true;
         $transactionForm = [
             'id' => trim((string) ($_POST['transaction_id'] ?? '')),
             'type' => (string) ($_POST['transaction_type'] ?? ''),
@@ -163,6 +165,7 @@ $categoryStatement->execute(['user_id' => $userId]);
 $categoryOptions = $categoryStatement->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['edit'])) {
+    $openTransactionDialog = true;
     $transactionId = filter_var($_GET['edit'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     $editingTransaction = $transactionId ? find_owned_transaction($pdo, $transactionId, $userId) : null;
     if (!$editingTransaction) {
@@ -268,13 +271,14 @@ require __DIR__ . '/includes/header.php';
                 </button>
             </form>
         </aside>
-        <main class="px-6 py-10 sm:px-10 lg:px-14">
+        <main class="transactions-main px-4 pb-28 pt-7 sm:px-10 sm:py-10 lg:px-14 md:pb-10">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Money activity</p>
                     <h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Transactions</h1>
                     <p class="mt-2 text-sm text-muted">Record and review every income and expense.</p>
                 </div>
+                <button class="desktop-transaction-cta hidden rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-dark md:inline-flex" type="button" data-open-transaction-dialog>+ Add transaction</button>
             </div>
             <?php if ($flash): ?><div
                 class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status">
@@ -283,82 +287,63 @@ require __DIR__ . '/includes/header.php';
                 <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
                     <?php endforeach; ?></ul>
             </div><?php endif; ?>
-            <section id="transaction-form" class="mt-8 rounded-2xl border border-line bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-extrabold"><?= $editingTransaction ? 'Edit transaction' : 'Add transaction' ?>
-                </h2><?php if (!$walletOptions || !$categoryOptions): ?><p
-                    class="mt-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">You need at least one active wallet
-                    and category before adding a transaction.</p><?php endif; ?>
-                <details class="mt-4 rounded-xl bg-sand p-4">
-                    <summary class="cursor-pointer text-sm font-bold text-brand">Add a custom category</summary>
-                    <form class="mt-4 flex flex-wrap items-end gap-3" action="transactions.php" method="post">
+            <section id="category-tools" class="mt-7 rounded-2xl border border-line bg-white p-5 shadow-sm">
+                <details class="rounded-xl bg-sand p-4">
+                    <summary class="cursor-pointer text-sm font-bold text-brand">Manage custom categories</summary>
+                    <form class="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-end" action="transactions.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                         <input type="hidden" name="action" value="create_category">
-                        <label class="text-sm font-bold">Name<input
-                                class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal"
-                                name="category_name" required></label>
-                        <label class="text-sm font-bold">Type<select
-                                class="mt-1 block rounded-lg border border-line px-3 py-2 font-normal"
-                                name="category_type">
-                                <option value="expense">Expense</option>
-                                <option value="income">Income</option>
-                            </select></label>
-                        <button class="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white" type="submit">Add
-                            category</button>
+                        <label class="flex-1 text-sm font-bold">Category name<input class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_name" maxlength="100" required></label>
+                        <label class="text-sm font-bold sm:w-40">Type<select class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+                        <button class="rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white" type="submit">Add category</button>
                     </form>
                 </details>
-                <form class="mt-6 grid gap-5 md:grid-cols-2" action="transactions.php" method="post"><input
-                        type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden"
-                        name="action"
-                        value="<?= $editingTransaction ? 'update' : 'create' ?>"><?php if ($editingTransaction): ?><input
-                        type="hidden" name="transaction_id" value="<?= e($transactionForm['id']) ?>"><?php endif; ?>
-                    <fieldset>
-                        <legend class="mb-2 block text-sm font-bold">Transaction type</legend>
-                        <div class="flex gap-3"><label class="flex items-center gap-2 text-sm"><input
-                                    name="transaction_type" type="radio" value="income"
-                                    <?= $transactionForm['type'] === 'income' ? 'checked' : '' ?>> Income</label><label
-                                class="flex items-center gap-2 text-sm"><input name="transaction_type" type="radio"
-                                    value="expense" <?= $transactionForm['type'] === 'expense' ? 'checked' : '' ?>>
-                                Expense</label></div>
-                    </fieldset>
-                    <div class="form-field"><label for="transaction_date">Transaction date</label><input
-                            id="transaction_date" name="transaction_date" type="date"
-                            value="<?= e($transactionForm['transaction_date']) ?>" required></div>
-                    <div class="form-field"><label for="description">Description</label><input id="description"
-                            name="description" value="<?= e($transactionForm['description']) ?>"
-                            placeholder="e.g. Grocery shopping" required></div>
-                    <div class="form-field"><label for="amount">Amount (PHP)</label><input id="amount" name="amount"
-                            type="text" inputmode="decimal" value="<?= e($transactionForm['amount']) ?>"
-                            placeholder="0.00" required></div>
-                    <div class="form-field"><label for="wallet_id">Wallet</label><select
-                            class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
-                            id="wallet_id" name="wallet_id" required>
-                            <option value="">Select a wallet</option><?php foreach ($walletOptions as $wallet): ?>
-                            <option value="<?= (int) $wallet['id'] ?>"
-                                <?= $transactionForm['wallet_id'] === (string) $wallet['id'] ? 'selected' : '' ?>>
-                                <?= e($wallet['wallet_name']) ?></option><?php endforeach; ?>
-                        </select></div>
-                    <div class="form-field"><label for="category_id">Category</label><select
-                            class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
-                            id="category_id" name="category_id" data-category-select required>
-                            <option value="">Select a category</option><?php foreach ($categoryOptions as $category): ?>
-                            <option data-category-type="<?= e($category['type']) ?>"
-                                value="<?= (int) $category['id'] ?>"
-                                <?= $transactionForm['category_id'] === (string) $category['id'] ? 'selected' : '' ?>>
-                                <?= e($category['name']) ?></option><?php endforeach; ?>
-                        </select></div>
-                    <div class="form-field md:col-span-2"><label for="notes">Notes <span
-                                class="font-normal text-muted">(optional)</span></label><textarea
-                            class="min-h-24 w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
-                            id="notes" name="notes" maxlength="5000"><?= e($transactionForm['notes']) ?></textarea>
-                    </div>
-                    <div class="md:col-span-2 flex flex-wrap gap-3"><button
-                            class="rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-dark"
-                            type="submit"
-                            <?= (!$walletOptions || !$categoryOptions) ? 'disabled' : '' ?>><?= $editingTransaction ? 'Save changes' : 'Add transaction' ?></button><?php if ($editingTransaction): ?><a
-                            class="rounded-xl border border-line px-5 py-3 text-sm font-bold text-muted hover:text-ink"
-                            href="transactions.php">Cancel</a><?php endif; ?></div>
-                </form>
             </section>
+            <dialog id="transaction-form" class="transaction-dialog fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none overflow-hidden rounded-t-3xl border border-line bg-white p-0 shadow-2xl backdrop:bg-ink/50 md:inset-0 md:m-auto md:max-h-[88dvh] md:max-w-2xl md:rounded-2xl" data-open-on-load="<?= $openTransactionDialog ? 'true' : 'false' ?>">
+                <div class="transaction-dialog-shell flex max-h-[92dvh] flex-col md:max-h-[88dvh]">
+                    <div class="flex items-center justify-between border-b border-line px-5 py-4 sm:px-7">
+                        <div>
+                            <p class="text-xs font-extrabold uppercase tracking-[.15em] text-brand">Quick entry</p>
+                            <h2 class="mt-1 text-xl font-extrabold"><?= $editingTransaction ? 'Edit transaction' : 'Add transaction' ?></h2>
+                        </div>
+                        <button class="grid size-10 place-items-center rounded-full bg-sand text-xl font-bold text-muted hover:text-ink" type="button" data-close-transaction-dialog aria-label="Close transaction form">×</button>
+                    </div>
+                    <?php if (!$walletOptions || !$categoryOptions): ?><p class="mx-5 mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800 sm:mx-7">You need at least one active wallet and category before adding a transaction.</p><?php endif; ?>
+                    <form id="transaction-entry-form" class="flex min-h-0 flex-1 flex-col" action="transactions.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                        <input type="hidden" name="action" value="<?= $editingTransaction ? 'update' : 'create' ?>">
+                        <?php if ($editingTransaction): ?><input type="hidden" name="transaction_id" value="<?= e($transactionForm['id']) ?>"><?php endif; ?>
+                        <div class="transaction-dialog-body min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-7">
+                            <fieldset>
+                                <legend class="mb-2 block text-sm font-bold">Transaction type</legend>
+                                <div class="transaction-type-options grid grid-cols-2 gap-2">
+                                    <label class="transaction-type-option flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-line px-3 text-sm font-bold"><input name="transaction_type" type="radio" value="expense" <?= $transactionForm['type'] === 'expense' ? 'checked' : '' ?>> Expense</label>
+                                    <label class="transaction-type-option flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-line px-3 text-sm font-bold"><input name="transaction_type" type="radio" value="income" <?= $transactionForm['type'] === 'income' ? 'checked' : '' ?>> Income</label>
+                                </div>
+                            </fieldset>
+                            <div class="form-field">
+                                <label for="amount">Amount (PHP)</label>
+                                <div class="transaction-amount-wrap relative"><span class="transaction-amount-prefix pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted">₱</span><input class="transaction-amount-input !pl-10 !py-4 !text-xl !font-extrabold" id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" value="<?= e($transactionForm['amount']) ?>" placeholder="0.00" required></div>
+                            </div>
+                            <div class="form-field"><label for="description">Description</label><input id="description" name="description" maxlength="150" value="<?= e($transactionForm['description']) ?>" placeholder="e.g. Grocery shopping" required></div>
+                            <div class="transaction-field-grid grid gap-5 sm:grid-cols-2">
+                                <div class="form-field"><label for="category_id">Category</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="category_id" name="category_id" data-category-select required><option value="">Select category</option><?php foreach ($categoryOptions as $category): ?><option data-category-type="<?= e($category['type']) ?>" value="<?= (int) $category['id'] ?>" <?= $transactionForm['category_id'] === (string) $category['id'] ? 'selected' : '' ?>><?= e($category['name']) ?></option><?php endforeach; ?></select></div>
+                                <div class="form-field"><label for="wallet_id">Wallet</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="wallet_id" name="wallet_id" required><option value="">Select wallet</option><?php foreach ($walletOptions as $wallet): ?><option value="<?= (int) $wallet['id'] ?>" <?= $transactionForm['wallet_id'] === (string) $wallet['id'] ? 'selected' : '' ?>><?= e($wallet['wallet_name']) ?></option><?php endforeach; ?></select></div>
+                            </div>
+                            <div class="form-field"><label for="transaction_date">Transaction date</label><input id="transaction_date" name="transaction_date" type="date" value="<?= e($transactionForm['transaction_date']) ?>" required></div>
+                            <details class="rounded-xl bg-sand p-4">
+                                <summary class="cursor-pointer text-sm font-bold text-brand">Additional details (optional)</summary>
+                                <div class="form-field mt-4"><label for="notes">Notes</label><textarea class="min-h-24 w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="notes" name="notes" maxlength="5000"><?= e($transactionForm['notes']) ?></textarea></div>
+                            </details>
+                        </div>
+                        <div class="transaction-dialog-footer flex gap-3 border-t border-line bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-7">
+                            <button class="flex-1 rounded-xl bg-brand px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-dark" type="submit" <?= (!$walletOptions || !$categoryOptions) ? 'disabled' : '' ?>><?= $editingTransaction ? 'Save changes' : 'Save transaction' ?></button>
+                            <button class="rounded-xl border border-line px-5 py-3.5 text-sm font-bold text-muted hover:text-ink" type="button" data-close-transaction-dialog>Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </dialog>
+            <button class="mobile-transaction-cta fixed bottom-5 right-5 z-30 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-4 text-sm font-extrabold text-white shadow-xl shadow-brand/25 transition hover:bg-brand-dark md:hidden" type="button" data-open-transaction-dialog><span class="text-xl leading-none">+</span> Add transaction</button>
             <section class="mt-10">
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
