@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim((string) ($_POST['first_name'] ?? ''));
     $middleName = trim((string) ($_POST['middle_name'] ?? ''));
     $lastName = trim((string) ($_POST['last_name'] ?? ''));
-    $age = trim((string) ($_POST['age'] ?? ''));
     $birthdate = trim((string) ($_POST['birthdate'] ?? ''));
     $email = trim((string) ($_POST['email'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
@@ -38,10 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mb_strlen($lastName) < 1 || mb_strlen($lastName) > 50) {
         $errors[] = 'Enter a last name between 1 and 50 characters.';
     }
-    $submittedAge = filter_var($age, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 130]]);
-    if ($submittedAge === false) {
-        $errors[] = 'Enter a valid age between 0 and 130.';
-    }
+    $calculatedAge = null;
     $birthdateObject = DateTimeImmutable::createFromFormat('!Y-m-d', $birthdate);
     $birthdateErrors = DateTimeImmutable::getLastErrors();
     $birthdateIsValid = $birthdateObject instanceof DateTimeImmutable
@@ -52,10 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Enter a valid birthdate.';
     } elseif ($birthdateObject > new DateTimeImmutable('today')) {
         $errors[] = 'Birthdate cannot be in the future.';
-    } elseif ($submittedAge !== false) {
+    } else {
         $calculatedAge = $birthdateObject->diff(new DateTimeImmutable('today'))->y;
-        if ($submittedAge !== $calculatedAge) {
-            $errors[] = "Your age must match your birthdate (calculated age: {$calculatedAge}).";
+        $age = (string) $calculatedAge;
+        if ($calculatedAge > 130) {
+            $errors[] = 'Your age must be 130 or younger.';
         }
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 191) {
@@ -78,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'first_name' => $firstName,
                 'middle_name' => $middleName !== '' ? $middleName : null,
                 'last_name' => $lastName,
-                'age' => $submittedAge,
+                'age' => $calculatedAge,
                 'birthdate' => $birthdate,
                 'email' => $email,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
@@ -130,21 +127,21 @@ require __DIR__ . '/includes/header.php';
                 </div>
                 <div class="mt-5 grid gap-5 sm:grid-cols-2">
                     <div class="form-field"><label for="birthdate">Birthdate</label><input id="birthdate"
-                            name="birthdate" type="date" value="<?= e($birthdate) ?>" autocomplete="bday" required>
+                            name="birthdate" type="date" value="<?= e($birthdate) ?>" max="<?= e((new DateTimeImmutable('today'))->format('Y-m-d')) ?>" autocomplete="bday" required>
                     </div>
                     <div class="form-field"><label for="age">Age</label><input id="age" name="age" type="number"
-                            value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" required></div>
+                            value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" placeholder="Automatically calculated" readonly aria-describedby="age-help"><p id="age-help" class="mt-1 text-xs text-muted">Your age is calculated from your birthdate.</p></div>
                 </div>
                 <div class="form-field mt-5"><label for="email">Email address</label><input id="email" name="email"
                         type="email" value="<?= e($email) ?>" autocomplete="email" required></div>
                 <div class="form-field mt-5"><label for="password">Password</label>
-                    <div class="relative"><input id="password" name="password" type="password" minlength="8"
+                    <div class="relative"><input id="password" name="password" type="password" class="password-input" minlength="8"
                             autocomplete="new-password" required><button
                             class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark"
                             type="button" aria-controls="password" aria-label="Show password">Show</button></div>
                 </div>
                 <div class="form-field mt-5"><label for="password_confirmation">Confirm password</label>
-                    <div class="relative"><input id="password_confirmation" name="password_confirmation" type="password"
+                    <div class="relative"><input id="password_confirmation" name="password_confirmation" type="password" class="password-input"
                             minlength="8" autocomplete="new-password" required><button
                             class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand hover:text-brand-dark"
                             type="button" aria-controls="password_confirmation" aria-label="Show password">Show</button>

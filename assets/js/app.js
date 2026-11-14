@@ -61,3 +61,42 @@ document.querySelectorAll('.sidebar-toggle').forEach((button) => {
 
     navigation.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNavigation));
 });
+
+const birthdateInput = document.getElementById('birthdate');
+const ageInput = document.getElementById('age');
+
+function updateAgeFromBirthdate() {
+    if (!birthdateInput || !ageInput) return;
+
+    const value = birthdateInput.value;
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+    if (!match) {
+        ageInput.value = '';
+        return;
+    }
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const birthdate = new Date(year, month - 1, day);
+
+    if (birthdate.getFullYear() !== year || birthdate.getMonth() !== month - 1 || birthdate.getDate() !== day) {
+        ageInput.value = '';
+        return;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    const birthdayHasPassed = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+
+    if (!birthdayHasPassed) age -= 1;
+
+    ageInput.value = age >= 0 ? String(age) : '';
+}
+
+if (birthdateInput && ageInput) {
+    birthdateInput.addEventListener('input', updateAgeFromBirthdate);
+    birthdateInput.addEventListener('change', updateAgeFromBirthdate);
+    updateAgeFromBirthdate();
+}
