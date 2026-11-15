@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
@@ -12,8 +13,14 @@ $flash = get_flash();
 $editingTransaction = null;
 $openTransactionDialog = false;
 $transactionForm = [
-    'id' => '', 'type' => 'expense', 'description' => '', 'amount' => '',
-    'wallet_id' => '', 'category_id' => '', 'transaction_date' => date('Y-m-d'), 'notes' => '',
+    'id' => '',
+    'type' => 'expense',
+    'description' => '',
+    'amount' => '',
+    'wallet_id' => '',
+    'category_id' => '',
+    'transaction_date' => date('Y-m-d'),
+    'notes' => '',
 ];
 
 function is_valid_transaction_date(string $date): bool
@@ -131,10 +138,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      VALUES (:user_id, :wallet_id, :category_id, :category_type, :type, :amount, :transaction_date, :description, :notes)'
                 );
                 $statement->execute([
-                    'user_id' => $userId, 'wallet_id' => $walletId, 'category_id' => $categoryId,
-                    'category_type' => $category['type'], 'type' => $transactionForm['type'],
-                    'amount' => $transactionForm['amount'], 'transaction_date' => $transactionForm['transaction_date'],
-                    'description' => $transactionForm['description'], 'notes' => $transactionForm['notes'] !== '' ? $transactionForm['notes'] : null,
+                    'user_id' => $userId,
+                    'wallet_id' => $walletId,
+                    'category_id' => $categoryId,
+                    'category_type' => $category['type'],
+                    'type' => $transactionForm['type'],
+                    'amount' => $transactionForm['amount'],
+                    'transaction_date' => $transactionForm['transaction_date'],
+                    'description' => $transactionForm['description'],
+                    'notes' => $transactionForm['notes'] !== '' ? $transactionForm['notes'] : null,
                 ]);
                 set_flash('success', 'Transaction added. Your wallet balance was recalculated.');
             } else {
@@ -144,11 +156,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      WHERE id = :transaction_id AND user_id = :user_id'
                 );
                 $statement->execute([
-                    'wallet_id' => $walletId, 'category_id' => $categoryId, 'category_type' => $category['type'],
-                    'type' => $transactionForm['type'], 'amount' => $transactionForm['amount'],
-                    'transaction_date' => $transactionForm['transaction_date'], 'description' => $transactionForm['description'],
+                    'wallet_id' => $walletId,
+                    'category_id' => $categoryId,
+                    'category_type' => $category['type'],
+                    'type' => $transactionForm['type'],
+                    'amount' => $transactionForm['amount'],
+                    'transaction_date' => $transactionForm['transaction_date'],
+                    'description' => $transactionForm['description'],
                     'notes' => $transactionForm['notes'] !== '' ? $transactionForm['notes'] : null,
-                    'transaction_id' => $transactionId, 'user_id' => $userId,
+                    'transaction_id' => $transactionId,
+                    'user_id' => $userId,
                 ]);
                 set_flash('success', 'Transaction updated. Your wallet balance was recalculated.');
             }
@@ -173,10 +190,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['edit'])) {
         redirect('transactions.php');
     }
     $transactionForm = [
-        'id' => (string) $editingTransaction['id'], 'type' => $editingTransaction['type'],
-        'description' => $editingTransaction['description'], 'amount' => (string) $editingTransaction['amount'],
-        'wallet_id' => (string) $editingTransaction['wallet_id'], 'category_id' => (string) $editingTransaction['category_id'],
-        'transaction_date' => $editingTransaction['transaction_date'], 'notes' => (string) ($editingTransaction['notes'] ?? ''),
+        'id' => (string) $editingTransaction['id'],
+        'type' => $editingTransaction['type'],
+        'description' => $editingTransaction['description'],
+        'amount' => (string) $editingTransaction['amount'],
+        'wallet_id' => (string) $editingTransaction['wallet_id'],
+        'category_id' => (string) $editingTransaction['category_id'],
+        'transaction_date' => $editingTransaction['transaction_date'],
+        'notes' => (string) ($editingTransaction['notes'] ?? ''),
     ];
 }
 
@@ -194,12 +215,30 @@ $filters['sort'] = $filters['sort'] === 'oldest' ? 'oldest' : 'newest';
 
 $where = ['t.user_id = :user_id'];
 $parameters = ['user_id' => $userId];
-if ($filters['search'] !== '') { $where[] = 't.description LIKE :search'; $parameters['search'] = '%' . mb_substr($filters['search'], 0, 150) . '%'; }
-if ($filters['type'] !== '') { $where[] = 't.type = :type'; $parameters['type'] = $filters['type']; }
-if ($filters['wallet_id']) { $where[] = 't.wallet_id = :wallet_id'; $parameters['wallet_id'] = $filters['wallet_id']; }
-if ($filters['category_id']) { $where[] = 't.category_id = :category_id'; $parameters['category_id'] = $filters['category_id']; }
-if (is_valid_transaction_date($filters['date_from'])) { $where[] = 't.transaction_date >= :date_from'; $parameters['date_from'] = $filters['date_from']; }
-if (is_valid_transaction_date($filters['date_to'])) { $where[] = 't.transaction_date <= :date_to'; $parameters['date_to'] = $filters['date_to']; }
+if ($filters['search'] !== '') {
+    $where[] = 't.description LIKE :search';
+    $parameters['search'] = '%' . mb_substr($filters['search'], 0, 150) . '%';
+}
+if ($filters['type'] !== '') {
+    $where[] = 't.type = :type';
+    $parameters['type'] = $filters['type'];
+}
+if ($filters['wallet_id']) {
+    $where[] = 't.wallet_id = :wallet_id';
+    $parameters['wallet_id'] = $filters['wallet_id'];
+}
+if ($filters['category_id']) {
+    $where[] = 't.category_id = :category_id';
+    $parameters['category_id'] = $filters['category_id'];
+}
+if (is_valid_transaction_date($filters['date_from'])) {
+    $where[] = 't.transaction_date >= :date_from';
+    $parameters['date_from'] = $filters['date_from'];
+}
+if (is_valid_transaction_date($filters['date_to'])) {
+    $where[] = 't.transaction_date <= :date_to';
+    $parameters['date_to'] = $filters['date_to'];
+}
 $whereSql = implode(' AND ', $where);
 
 $countStatement = $pdo->prepare("SELECT COUNT(*) FROM transactions t WHERE {$whereSql}");
@@ -281,12 +320,12 @@ require __DIR__ . '/includes/header.php';
                 <button class="desktop-transaction-cta hidden rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-dark md:inline-flex" type="button" data-open-transaction-dialog>+ Add transaction</button>
             </div>
             <?php if ($flash): ?><div
-                class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status">
-                <?= e($flash['message']) ?></div><?php endif; ?><?php if ($errors): ?><div
-                class="alert alert-error mt-7" role="alert">
-                <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
-                    <?php endforeach; ?></ul>
-            </div><?php endif; ?>
+                    class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?> mt-7" role="status">
+                    <?= e($flash['message']) ?></div><?php endif; ?><?php if ($errors): ?><div
+                    class="alert alert-error mt-7" role="alert">
+                    <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
+                        <?php endforeach; ?></ul>
+                </div><?php endif; ?>
             <section id="category-tools" class="mt-7 rounded-2xl border border-line bg-white p-5 shadow-sm">
                 <details class="rounded-xl bg-sand p-4">
                     <summary class="cursor-pointer text-sm font-bold text-brand">Manage custom categories</summary>
@@ -294,7 +333,10 @@ require __DIR__ . '/includes/header.php';
                         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                         <input type="hidden" name="action" value="create_category">
                         <label class="flex-1 text-sm font-bold">Category name<input class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_name" data-uppercase maxlength="100" required></label>
-                        <label class="text-sm font-bold sm:w-40">Type<select class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+                        <label class="text-sm font-bold sm:w-40">Type<select class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_type">
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select></label>
                         <button class="rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white" type="submit">Add category</button>
                     </form>
                 </details>
@@ -327,8 +369,12 @@ require __DIR__ . '/includes/header.php';
                             </div>
                             <div class="form-field"><label for="description">Description</label><input id="description" name="description" data-uppercase maxlength="150" value="<?= e($transactionForm['description']) ?>" placeholder="e.g. Grocery shopping" required></div>
                             <div class="transaction-field-grid grid gap-5 sm:grid-cols-2">
-                                <div class="form-field"><label for="category_id">Category</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="category_id" name="category_id" data-category-select required><option value="">Select category</option><?php foreach ($categoryOptions as $category): ?><option data-category-type="<?= e($category['type']) ?>" value="<?= (int) $category['id'] ?>" <?= $transactionForm['category_id'] === (string) $category['id'] ? 'selected' : '' ?>><?= e($category['name']) ?></option><?php endforeach; ?></select></div>
-                                <div class="form-field"><label for="wallet_id">Wallet</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="wallet_id" name="wallet_id" required><option value="">Select wallet</option><?php foreach ($walletOptions as $wallet): ?><option value="<?= (int) $wallet['id'] ?>" <?= $transactionForm['wallet_id'] === (string) $wallet['id'] ? 'selected' : '' ?>><?= e($wallet['wallet_name']) ?></option><?php endforeach; ?></select></div>
+                                <div class="form-field"><label for="category_id">Category</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="category_id" name="category_id" data-category-select required>
+                                        <option value="">Select category</option><?php foreach ($categoryOptions as $category): ?><option data-category-type="<?= e($category['type']) ?>" value="<?= (int) $category['id'] ?>" <?= $transactionForm['category_id'] === (string) $category['id'] ? 'selected' : '' ?>><?= e($category['name']) ?></option><?php endforeach; ?>
+                                    </select></div>
+                                <div class="form-field"><label for="wallet_id">Wallet</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="wallet_id" name="wallet_id" required>
+                                        <option value="">Select wallet</option><?php foreach ($walletOptions as $wallet): ?><option value="<?= (int) $wallet['id'] ?>" <?= $transactionForm['wallet_id'] === (string) $wallet['id'] ? 'selected' : '' ?>><?= e($wallet['wallet_name']) ?></option><?php endforeach; ?>
+                                    </select></div>
                             </div>
                             <div class="form-field"><label for="transaction_date">Transaction date</label><input id="transaction_date" name="transaction_date" type="date" value="<?= e($transactionForm['transaction_date']) ?>" required></div>
                             <details class="rounded-xl bg-sand p-4">
@@ -362,14 +408,14 @@ require __DIR__ . '/includes/header.php';
                         <option value="expense" <?= $filters['type'] === 'expense' ? 'selected' : '' ?>>Expense</option>
                     </select><select class="rounded-xl border border-line px-3 py-2 text-sm" name="wallet_id">
                         <option value="">All wallets</option><?php foreach ($walletOptions as $wallet): ?><option
-                            value="<?= (int) $wallet['id'] ?>"
-                            <?= $filters['wallet_id'] === (int) $wallet['id'] ? 'selected' : '' ?>>
-                            <?= e($wallet['wallet_name']) ?></option><?php endforeach; ?>
+                                value="<?= (int) $wallet['id'] ?>"
+                                <?= $filters['wallet_id'] === (int) $wallet['id'] ? 'selected' : '' ?>>
+                                <?= e($wallet['wallet_name']) ?></option><?php endforeach; ?>
                     </select><select class="rounded-xl border border-line px-3 py-2 text-sm" name="category_id">
                         <option value="">All categories</option><?php foreach ($categoryOptions as $category): ?><option
-                            value="<?= (int) $category['id'] ?>"
-                            <?= $filters['category_id'] === (int) $category['id'] ? 'selected' : '' ?>>
-                            <?= e($category['name']) ?></option><?php endforeach; ?>
+                                value="<?= (int) $category['id'] ?>"
+                                <?= $filters['category_id'] === (int) $category['id'] ? 'selected' : '' ?>>
+                                <?= e($category['name']) ?></option><?php endforeach; ?>
                     </select><input class="rounded-xl border border-line px-3 py-2 text-sm" name="date_from" type="date"
                         value="<?= e($filters['date_from']) ?>"><input
                         class="rounded-xl border border-line px-3 py-2 text-sm" name="date_to" type="date"
@@ -386,57 +432,60 @@ require __DIR__ . '/includes/header.php';
                             href="transactions.php">Clear</a></div>
                 </form>
                 <?php if (!$transactions): ?><div
-                    class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
-                    <p class="font-bold">No transactions found</p>
-                    <p class="mt-2 text-sm text-muted">Add your first income or expense, or adjust your filters.</p>
-                </div><?php else: ?><div class="mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
-                    <table class="min-w-full text-left text-sm">
-                        <thead class="border-b border-line bg-sand text-xs uppercase tracking-wide text-muted">
-                            <tr>
-                                <th class="px-5 py-4">Description</th>
-                                <th class="px-5 py-4">Category</th>
-                                <th class="px-5 py-4">Wallet</th>
-                                <th class="px-5 py-4">Date</th>
-                                <th class="px-5 py-4">Type</th>
-                                <th class="px-5 py-4 text-right">Amount</th>
-                                <th class="px-5 py-4"></th>
-                            </tr>
-                        </thead>
-                        <tbody><?php foreach ($transactions as $transaction): ?><tr
-                                class="border-b border-line last:border-0">
-                                <td class="px-5 py-4 font-bold"><?= e($transaction['description']) ?></td>
-                                <td class="px-5 py-4 text-muted"><?= e($transaction['category_name']) ?></td>
-                                <td class="px-5 py-4 text-muted"><?= e($transaction['wallet_name']) ?></td>
-                                <td class="px-5 py-4 text-muted"><?= e($transaction['transaction_date']) ?></td>
-                                <td class="px-5 py-4"><span
-                                        class="rounded-full px-2.5 py-1 text-xs font-bold <?= $transaction['type'] === 'income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' ?>"><?= e(ucfirst($transaction['type'])) ?></span>
-                                </td>
-                                <td
-                                    class="px-5 py-4 text-right font-bold <?= $transaction['type'] === 'income' ? 'text-brand' : 'text-rose-700' ?>">
-                                    <?= $transaction['type'] === 'income' ? '+' : '-' ?><?= format_peso((string) $transaction['amount']) ?>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <div class="flex justify-end gap-3"><a
-                                            class="font-bold text-brand hover:text-brand-dark"
-                                            href="transactions.php?edit=<?= (int) $transaction['id'] ?>">Edit</a>
-                                        <form action="transactions.php" method="post"
-                                            onsubmit="return confirm('Delete this transaction? This cannot be undone.');">
-                                            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input
-                                                type="hidden" name="action" value="delete"><input type="hidden"
-                                                name="transaction_id" value="<?= (int) $transaction['id'] ?>"><button
-                                                class="font-bold text-rose-700" type="submit">Delete</button></form>
-                                    </div>
-                                </td>
-                            </tr><?php endforeach; ?></tbody>
-                    </table>
-                </div><?php if ($totalPages > 1): ?><div class="mt-5 flex items-center justify-between text-sm"><span
-                        class="text-muted">Page <?= $page ?> of <?= $totalPages ?></span>
-                    <div class="flex gap-2"><?php $query = $_GET; if ($page > 1): $query['page'] = $page - 1; ?><a
-                            class="rounded-lg border border-line px-3 py-2 font-bold"
-                            href="transactions.php?<?= e(http_build_query($query)) ?>">Previous</a><?php endif; if ($page < $totalPages): $query['page'] = $page + 1; ?><a
-                            class="rounded-lg border border-line px-3 py-2 font-bold"
-                            href="transactions.php?<?= e(http_build_query($query)) ?>">Next</a><?php endif; ?></div>
-                </div><?php endif; ?><?php endif; ?>
+                        class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
+                        <p class="font-bold">No transactions found</p>
+                        <p class="mt-2 text-sm text-muted">Add your first income or expense, or adjust your filters.</p>
+                    </div><?php else: ?><div class="mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
+                        <table class="min-w-full text-left text-sm">
+                            <thead class="border-b border-line bg-sand text-xs uppercase tracking-wide text-muted">
+                                <tr>
+                                    <th class="px-5 py-4">Description</th>
+                                    <th class="px-5 py-4">Category</th>
+                                    <th class="px-5 py-4">Wallet</th>
+                                    <th class="px-5 py-4">Date</th>
+                                    <th class="px-5 py-4">Type</th>
+                                    <th class="px-5 py-4 text-right">Amount</th>
+                                    <th class="px-5 py-4"></th>
+                                </tr>
+                            </thead>
+                            <tbody><?php foreach ($transactions as $transaction): ?><tr
+                                        class="border-b border-line last:border-0">
+                                        <td class="px-5 py-4 font-bold"><?= e($transaction['description']) ?></td>
+                                        <td class="px-5 py-4 text-muted"><?= e($transaction['category_name']) ?></td>
+                                        <td class="px-5 py-4 text-muted"><?= e($transaction['wallet_name']) ?></td>
+                                        <td class="px-5 py-4 text-muted"><?= e($transaction['transaction_date']) ?></td>
+                                        <td class="px-5 py-4"><span
+                                                class="rounded-full px-2.5 py-1 text-xs font-bold <?= $transaction['type'] === 'income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' ?>"><?= e(ucfirst($transaction['type'])) ?></span>
+                                        </td>
+                                        <td
+                                            class="px-5 py-4 text-right font-bold <?= $transaction['type'] === 'income' ? 'text-brand' : 'text-rose-700' ?>">
+                                            <?= $transaction['type'] === 'income' ? '+' : '-' ?><?= format_peso((string) $transaction['amount']) ?>
+                                        </td>
+                                        <td class="px-5 py-4">
+                                            <div class="flex justify-end gap-3"><a
+                                                    class="font-bold text-brand hover:text-brand-dark"
+                                                    href="transactions.php?edit=<?= (int) $transaction['id'] ?>">Edit</a>
+                                                <form action="transactions.php" method="post"
+                                                    onsubmit="return confirm('Delete this transaction? This cannot be undone.');">
+                                                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input
+                                                        type="hidden" name="action" value="delete"><input type="hidden"
+                                                        name="transaction_id" value="<?= (int) $transaction['id'] ?>"><button
+                                                        class="font-bold text-rose-700" type="submit">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr><?php endforeach; ?></tbody>
+                        </table>
+                    </div><?php if ($totalPages > 1): ?><div class="mt-5 flex items-center justify-between text-sm"><span
+                                class="text-muted">Page <?= $page ?> of <?= $totalPages ?></span>
+                            <div class="flex gap-2"><?php $query = $_GET;
+                                                    if ($page > 1): $query['page'] = $page - 1; ?><a
+                                        class="rounded-lg border border-line px-3 py-2 font-bold"
+                                        href="transactions.php?<?= e(http_build_query($query)) ?>">Previous</a><?php endif;
+                                                                                                            if ($page < $totalPages): $query['page'] = $page + 1; ?><a
+                                        class="rounded-lg border border-line px-3 py-2 font-bold"
+                                        href="transactions.php?<?= e(http_build_query($query)) ?>">Next</a><?php endif; ?></div>
+                        </div><?php endif; ?><?php endif; ?>
             </section>
         </main>
     </div>

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_name'] = complete_name($user['first_name'], $user['middle_name'], $user['last_name']);
                 redirect('dashboard.php');
             }
-        } catch (PDOException|RuntimeException $exception) {
+        } catch (PDOException | RuntimeException $exception) {
             $errors[] = 'We could not log you in right now. Please check the database setup and try again.';
         }
     }
@@ -92,14 +93,14 @@ require __DIR__ . '/includes/header.php';
                 <p class="mt-2 text-sm leading-6 text-muted">Log in to continue keeping your budget on track.</p>
 
                 <?php if ($flash): ?>
-                <div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?>" role="status">
-                    <?= e($flash['message']) ?></div>
+                    <div class="alert <?= $flash['type'] === 'success' ? 'alert-success' : 'alert-error' ?>" role="status">
+                        <?= e($flash['message']) ?></div>
                 <?php endif; ?>
                 <?php if ($errors): ?>
-                <div class="alert alert-error" role="alert">
-                    <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
-                        <?php endforeach; ?></ul>
-                </div>
+                    <div class="alert alert-error" role="alert">
+                        <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
+                            <?php endforeach; ?></ul>
+                    </div>
                 <?php endif; ?>
                 <form class="mt-8" action="index.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">

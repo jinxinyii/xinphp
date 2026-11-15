@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
@@ -106,10 +107,10 @@ require __DIR__ . '/includes/header.php';
             <h1 class="mt-3 text-3xl font-extrabold tracking-[-.045em]">Create your account</h1>
             <p class="mt-2 text-sm leading-6 text-muted">Set up your private space for every peso.</p>
             <?php if ($errors): ?>
-            <div class="alert alert-error mt-6" role="alert">
-                <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
-                    <?php endforeach; ?></ul>
-            </div>
+                <div class="alert alert-error mt-6" role="alert">
+                    <ul class="list-inside list-disc"><?php foreach ($errors as $error): ?><li><?= e($error) ?></li>
+                        <?php endforeach; ?></ul>
+                </div>
             <?php endif; ?>
             <form class="mt-7" action="register.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
@@ -130,7 +131,9 @@ require __DIR__ . '/includes/header.php';
                             name="birthdate" type="date" value="<?= e($birthdate) ?>" max="<?= e((new DateTimeImmutable('today'))->format('Y-m-d')) ?>" autocomplete="bday" required>
                     </div>
                     <div class="form-field"><label for="age">Age</label><input id="age" name="age" type="number"
-                            value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" placeholder="Automatically calculated" readonly aria-describedby="age-help"><p id="age-help" class="mt-1 text-xs text-muted">Your age is calculated from your birthdate.</p></div>
+                            value="<?= e($age) ?>" min="0" max="130" inputmode="numeric" placeholder="Automatically calculated" readonly aria-describedby="age-help">
+                        <p id="age-help" class="mt-1 text-xs text-muted">Your age is calculated from your birthdate.</p>
+                    </div>
                 </div>
                 <div class="form-field mt-5"><label for="email">Email address</label><input id="email" name="email"
                         type="email" value="<?= e($email) ?>" autocomplete="email" required></div>
