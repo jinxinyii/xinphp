@@ -137,22 +137,22 @@ require __DIR__ . '/includes/header.php';
                                                         $state = $pct >= 100 ? 'exceeded' : ($pct >= 80 ? 'approaching' : 'within');
                                                         $bar = $state === 'exceeded' ? 'bg-rose-500' : ($state === 'approaching' ? 'bg-amber-500' : 'bg-brand'); ?>
                     <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                        <div class="flex justify-between gap-3">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <h3 class="font-extrabold"><?= e($b['name']) ?></h3>
                                 <p class="mt-1 text-sm text-muted">Budget <?= format_peso((string)$b['amount']) ?> · Spent
                                     <?= format_peso((string)$b['spent']) ?></p>
                             </div><span
-                                class="text-xs font-bold <?= $state === 'exceeded' ? 'text-rose-700' : ($state === 'approaching' ? 'text-amber-700' : 'text-brand') ?>"><?= $state === 'exceeded' ? 'Exceeded' : ($state === 'approaching' ? 'Approaching' : 'Within Budget') ?></span>
+                                class="inline-flex w-fit items-center rounded-full px-3 py-1.5 text-xs font-bold <?= $state === 'exceeded' ? 'bg-rose-100 text-rose-700' : ($state === 'approaching' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-800') ?>"><?= $state === 'exceeded' ? 'Exceeded' : ($state === 'approaching' ? 'Approaching' : 'Within Budget') ?></span>
                         </div>
                         <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line">
                             <div class="h-full <?= $bar ?>" style="width:<?= min($pct, 100) ?>%"></div>
                         </div>
-                        <div class="mt-3 flex justify-between text-sm"><span><?= number_format($pct, 0) ?>%
+                        <div class="mt-3 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between"><span><?= number_format($pct, 0) ?>%
                                 used</span><strong
                                 class="<?= $remain < 0 ? 'text-rose-700' : 'text-brand' ?>"><?= $remain < 0 ? 'Over by ' . format_peso((string)abs($remain)) : format_peso((string)$remain) . ' remaining' ?></strong>
                         </div>
-                        <div class="mt-4 flex items-center gap-3">
+                        <div class="mt-5 flex flex-wrap items-center gap-3">
                             <a class="inline-flex items-center justify-center rounded-xl bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand/90"
                                 href="budgets.php?month=<?= e($selectedMonth) ?>&edit=<?= (int)$b['id'] ?>">
                                 Edit

@@ -68,51 +68,51 @@ require __DIR__ . '/includes/header.php';
                 </button>
             </form>
         </aside>
-        <main class="px-6 py-10 sm:px-10 lg:px-14">
+        <main class="dashboard-main min-w-0 px-4 py-7 sm:px-10 sm:py-10 lg:px-14">
             <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Your overview</p>
-            <h1 class="mt-3 text-4xl font-extrabold tracking-[-.05em]">Welcome back,
+            <h1 class="dashboard-page-title mt-2 text-3xl font-extrabold tracking-[-.05em]">Welcome back,
                 <?= e(ucwords(strtolower($_SESSION['user_name'] ?? 'there'))) ?>.</h1>
-            <p class="mt-3 max-w-xl leading-7 text-muted">Here is a clear view of your money for
+            <p class="dashboard-intro mt-2 max-w-xl text-sm leading-6 text-muted">Here is a clear view of your money for
                 <?= e($today->format('F Y')) ?>.</p>
-            <section class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Financial summary">
-                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Total Balance</p>
-                    <p class="mt-4 text-3xl font-extrabold tracking-tight"><?= format_peso($summary['total_balance']) ?>
+            <section class="dashboard-summary-grid mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Financial summary">
+                <article class="dashboard-summary-card min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm">
+                    <p class="dashboard-summary-label text-xs font-bold text-muted">Total Balance</p>
+                    <p class="dashboard-summary-value mt-3 text-xl font-extrabold tracking-tight"><?= format_peso($summary['total_balance']) ?>
                     </p>
                     <p class="mt-2 text-xs text-muted">Across active wallets</p>
                 </article>
-                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Income</p>
-                    <p class="mt-4 text-3xl font-extrabold tracking-tight text-brand">
+                <article class="dashboard-summary-card min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm">
+                    <p class="dashboard-summary-label text-xs font-bold text-muted">Income</p>
+                    <p class="dashboard-summary-value mt-3 text-xl font-extrabold tracking-tight text-brand">
                         <?= format_peso($summary['monthly_income']) ?></p>
                     <p class="mt-2 text-xs text-muted">This month</p>
                 </article>
-                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Expenses</p>
-                    <p class="mt-4 text-3xl font-extrabold tracking-tight text-rose-700">
+                <article class="dashboard-summary-card min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm">
+                    <p class="dashboard-summary-label text-xs font-bold text-muted">Expenses</p>
+                    <p class="dashboard-summary-value mt-3 text-xl font-extrabold tracking-tight text-rose-700">
                         <?= format_peso($summary['monthly_expenses']) ?></p>
                     <p class="mt-2 text-xs text-muted">This month</p>
                 </article>
-                <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Monthly Savings</p>
+                <article class="dashboard-summary-card min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm">
+                    <p class="dashboard-summary-label text-xs font-bold text-muted">Monthly Savings</p>
                     <p
-                        class="mt-4 text-3xl font-extrabold tracking-tight <?= (float) $summary['monthly_savings'] < 0 ? 'text-rose-700' : 'text-brand' ?>">
+                        class="dashboard-summary-value mt-3 text-xl font-extrabold tracking-tight <?= (float) $summary['monthly_savings'] < 0 ? 'text-rose-700' : 'text-brand' ?>">
                         <?= format_peso($summary['monthly_savings']) ?></p>
                     <p class="mt-2 text-xs text-muted">Income minus expenses</p>
                 </article>
             </section>
-            <section class="mt-10">
-                <div class="flex flex-wrap items-end justify-between gap-4">
+            <section class="mt-8 sm:mt-10">
+                <div class="dashboard-budget-toolbar flex flex-col gap-3">
                     <div>
                         <h2 class="text-xl font-extrabold tracking-tight">Monthly Budget Overview</h2>
                         <p class="mt-1 text-sm text-muted">Expense limits and spending progress.</p>
                     </div>
-                    <div class="flex items-end gap-3">
-                        <form method="get" action="dashboard.php"><label
+                    <div class="dashboard-budget-controls flex w-full items-end gap-2">
+                        <form class="dashboard-month-control min-w-0 flex-1" method="get" action="dashboard.php"><label
                                 class="block text-xs font-bold text-muted">Month<input
-                                    class="mt-1 block rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink"
+                                    class="mt-1 block dashboard-month-input w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink"
                                     name="budget_month" type="month" value="<?= e($budgetMonthInput) ?>"></label></form>
-                        <a class="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
+                        <a class="shrink-0 rounded-xl bg-brand px-3 py-2.5 text-xs font-bold text-white hover:bg-brand-dark"
                             href="budgets.php">Manage Budgets</a>
                     </div>
                 </div>
@@ -130,7 +130,7 @@ require __DIR__ . '/includes/header.php';
                                                                         $percentage = $allocated > 0 ? ($spent / $allocated) * 100 : 0;
                                                                         $state = $percentage >= 100 ? 'exceeded' : ($percentage >= 80 ? 'approaching' : 'within');
                                                                         $bar = $state === 'exceeded' ? 'bg-rose-500' : ($state === 'approaching' ? 'bg-amber-500' : 'bg-brand'); ?>
-                        <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
+                        <article class="dashboard-budget-card rounded-2xl border border-line bg-white p-4 shadow-sm">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <h3 class="truncate font-extrabold"><?= e($budget['category_name']) ?></h3>
@@ -151,20 +151,40 @@ require __DIR__ . '/includes/header.php';
                         </article><?php endforeach; ?>
                     </div><?php endif; ?>
             </section>
-            <section class="mt-10">
-                <div class="flex items-end justify-between gap-4">
-                    <div>
+            <section class="mt-8 sm:mt-10">
+                <div class="flex items-end justify-between gap-3">
+                    <div class="min-w-0">
                         <h2 class="text-xl font-extrabold tracking-tight">Recent Transactions</h2>
                         <p class="mt-1 text-sm text-muted">Your five latest income and expense entries.</p>
-                    </div><a class="text-sm font-bold text-brand hover:text-brand-dark" href="transactions.php">View All
-                        Transactions</a>
+                    </div><a class="dashboard-view-all shrink-0 text-right text-xs font-bold text-brand hover:text-brand-dark" href="transactions.php">View All<br class="sm:hidden"> Transactions</a>
                 </div><?php if (!$recentTransactions): ?><div
                         class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
                         <p class="font-bold">No transactions yet</p>
                         <p class="mt-2 text-sm text-muted">Add your first income or expense to see it here.</p><a
                             class="mt-4 inline-block text-sm font-bold text-brand hover:text-brand-dark"
                             href="transactions.php#transaction-form">Add transaction</a>
-                    </div><?php else: ?><div class="mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
+                    </div><?php else: ?>
+                    <div class="dashboard-mobile-transactions mt-4 grid gap-3">
+                        <?php foreach ($recentTransactions as $transaction): ?>
+                            <article class="rounded-2xl border border-line bg-white p-4 shadow-sm">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="dashboard-wrap-text text-sm font-extrabold leading-5"><?= e($transaction['description']) ?></h3>
+                                        <p class="dashboard-wrap-text mt-1 text-xs text-muted"><?= e($transaction['category_name']) ?></p>
+                                    </div>
+                                    <div class="shrink-0 text-right flex flex-col items-end gap-2">
+                                        <p class="text-sm font-extrabold dashboard-tabular <?= $transaction['type'] === 'income' ? 'text-brand' : 'text-rose-700' ?>"><?= $transaction['type'] === 'income' ? '+' : '-' ?><?= format_peso((string) $transaction['amount']) ?></p>
+                                        <span class="inline-block rounded-full px-3 py-1.5 text-[10px] font-bold <?= $transaction['type'] === 'income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' ?>"><?= e(ucfirst($transaction['type'])) ?></span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-line pt-3 text-xs text-muted">
+                                    <span class="dashboard-wrap-text min-w-0"><?= e($transaction['wallet_name']) ?></span>
+                                    <span class="shrink-0"><?= e($transaction['transaction_date']) ?></span>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="dashboard-desktop-transactions mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
                         <table class="min-w-full text-left text-sm">
                             <thead class="border-b border-line bg-sand text-xs uppercase tracking-wide text-muted">
                                 <tr>

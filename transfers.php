@@ -160,7 +160,39 @@ require __DIR__ . '/includes/header.php';
                     class="mt-4 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
                     <p class="font-bold">No transfers yet</p>
                     <p class="mt-2 text-sm text-muted">Use the form above to move money between your wallets.</p>
-                </div><?php else: ?><div class="mt-4 overflow-x-auto rounded-2xl border border-line bg-white">
+                </div><?php else: ?>
+                <div class="mt-4 grid gap-3 md:hidden">
+                    <?php foreach ($transfers as $tr): ?>
+                        <article class="rounded-2xl border border-line bg-white p-4 shadow-sm">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[11px] font-bold uppercase tracking-wide text-muted">From</p>
+                                    <p class="mt-1 break-words font-extrabold"><?= e($tr['source_name']) ?></p>
+                                    <div class="my-2 flex items-center gap-2 text-muted" aria-hidden="true"><span class="h-px w-5 bg-line"></span><span class="text-xs">to</span><span class="h-px w-5 bg-line"></span></div>
+                                    <p class="text-[11px] font-bold uppercase tracking-wide text-muted">To</p>
+                                    <p class="mt-1 break-words font-extrabold"><?= e($tr['destination_name']) ?></p>
+                                </div>
+                                <div class="shrink-0 text-right">
+                                    <p class="text-base font-extrabold tabular-nums text-brand"><?= format_peso((string)$tr['amount']) ?></p>
+                                    <p class="mt-2 text-xs text-muted"><?= e($tr['transfer_date']) ?></p>
+                                </div>
+                            </div>
+                            <?php if (!empty($tr['description'])): ?>
+                                <p class="mt-4 border-t border-line pt-3 text-sm text-muted break-words"><?= e($tr['description']) ?></p>
+                            <?php endif; ?>
+                            <div class="mt-4 flex items-center gap-4 border-t border-line pt-3">
+                                <a class="text-sm font-bold text-brand" href="transfers.php?edit=<?= (int)$tr['id'] ?>">Edit</a>
+                                <form method="post" onsubmit="return confirm('Delete this transfer?');">
+                                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="transfer_id" value="<?= (int)$tr['id'] ?>">
+                                    <button class="text-sm font-bold text-rose-700" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+                <div class="mt-4 hidden overflow-x-auto rounded-2xl border border-line bg-white md:block">
                     <table class="min-w-full text-left text-sm">
                         <thead class="border-b border-line bg-sand text-xs uppercase text-muted">
                             <tr>

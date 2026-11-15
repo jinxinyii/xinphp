@@ -194,3 +194,32 @@
         height: 88dvh;
     }
 }
+
+.dashboard-summary-grid { gap: .75rem; }
+.dashboard-summary-card { padding: .875rem; }
+.dashboard-summary-value { overflow-wrap: anywhere; font-size: 1.125rem; line-height: 1.35; }
+.dashboard-summary-label { font-size: .7rem; line-height: 1rem; }
+.dashboard-budget-card { padding: 1rem; }
+.dashboard-mobile-transactions { display: grid; }
+.dashboard-desktop-transactions { display: none; }
+.dashboard-wrap-text { overflow-wrap: anywhere; }
+.dashboard-tabular { font-variant-numeric: tabular-nums; }
+.dashboard-view-all { max-width: 7.5rem; }
+@media (min-width: 640px) {
+    .dashboard-summary-grid { gap: 1rem; }
+    .dashboard-summary-card { padding: 1.25rem; }
+    .dashboard-summary-value { margin-top: 1rem; font-size: 1.875rem; line-height: 2.25rem; }
+    .dashboard-summary-label { font-size: .875rem; line-height: 1.25rem; }
+    .dashboard-budget-card { padding: 1.25rem; }
+    .dashboard-view-all { max-width: none; }
+}
+@media (min-width: 768px) {
+    .dashboard-mobile-transactions { display: none; }
+    .dashboard-desktop-transactions { display: block; }
+    .dashboard-budget-toolbar { flex-direction: row; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+    .dashboard-budget-controls { width: auto; gap: .75rem; }
+    .dashboard-month-control { flex: none; }
+    .dashboard-month-input { width: auto; }
+    .dashboard-page-title { margin-top: .75rem; font-size: 2.25rem; line-height: 2.5rem; }
+    .dashboard-intro { margin-top: .75rem; font-size: 1rem; line-height: 1.75rem; }
+}

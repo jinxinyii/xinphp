@@ -77,8 +77,8 @@ function find_owned_transaction(PDO $pdo, int $transactionId, int $userId): ?arr
 }
 
 /**
- * Calculates a wallet balance from the opening balance, income/expenses, and
- * dedicated transfer records. Transfers are excluded from income/expense reports.
+ * Calculates a wallet balance from the opening balance, transactions, transfers,
+ * and recorded balance adjustments. Adjustments are excluded from income/expense reports.
  */
 function wallet_current_balance(PDO $pdo, int $walletId, int $userId): ?string
 {
@@ -90,6 +90,9 @@ function wallet_current_balance(PDO $pdo, int $walletId, int $userId): ?string
                 FROM transfers tr
                 WHERE tr.user_id = w.user_id
                     AND (tr.source_wallet_id = w.id OR tr.destination_wallet_id = w.id)), 0)
+            + COALESCE((SELECT SUM(ba.amount_change)
+                FROM wallet_balance_adjustments ba
+                WHERE ba.wallet_id = w.id AND ba.user_id = w.user_id), 0)
             AS DECIMAL(14,2)) AS current_balance
         FROM wallets w
         WHERE w.id = :wallet_id AND w.user_id = :user_id
@@ -113,7 +116,8 @@ function user_wallets_with_balances(PDO $pdo, int $userId, bool $includeArchived
         "SELECT w.id, w.provider_name, w.wallet_type, w.wallet_name, w.opening_balance,
                 w.currency_code, w.is_archived,
                 CAST(w.opening_balance + COALESCE(transaction_totals.net_amount, 0)
-                    + COALESCE(transfer_totals.net_amount, 0) AS DECIMAL(14,2)) AS current_balance
+                    + COALESCE(transfer_totals.net_amount, 0)
+                    + COALESCE(adjustment_totals.net_amount, 0) AS DECIMAL(14,2)) AS current_balance
          FROM wallets w
          LEFT JOIN (
              SELECT wallet_id, user_id,
@@ -133,6 +137,12 @@ function user_wallets_with_balances(PDO $pdo, int $userId, bool $includeArchived
              ) transfer_changes
              GROUP BY wallet_id, user_id
          ) transfer_totals ON transfer_totals.wallet_id = w.id AND transfer_totals.user_id = w.user_id
+         LEFT JOIN (
+             SELECT wallet_id, user_id, SUM(amount_change) AS net_amount
+             FROM wallet_balance_adjustments
+             WHERE user_id = :adjustment_user_id
+             GROUP BY wallet_id, user_id
+         ) adjustment_totals ON adjustment_totals.wallet_id = w.id AND adjustment_totals.user_id = w.user_id
          WHERE w.user_id = :wallet_user_id
            AND (:include_archived = 1 OR w.is_archived = 0)
          ORDER BY w.is_archived ASC, w.wallet_name ASC"
@@ -141,6 +151,7 @@ function user_wallets_with_balances(PDO $pdo, int $userId, bool $includeArchived
         'transaction_user_id' => $userId,
         'incoming_transfer_user_id' => $userId,
         'outgoing_transfer_user_id' => $userId,
+        'adjustment_user_id' => $userId,
         'wallet_user_id' => $userId,
         'include_archived' => $includeArchived ? 1 : 0,
     ]);
@@ -156,12 +167,13 @@ function financial_dashboard_summary(PDO $pdo, int $userId, string $monthStart, 
             COALESCE((SELECT SUM(w.opening_balance) FROM wallets w WHERE w.user_id = :balance_user_id AND w.is_archived = 0), 0)
             + COALESCE((SELECT SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE -t.amount END) FROM transactions t INNER JOIN wallets w ON w.id = t.wallet_id AND w.user_id = t.user_id WHERE t.user_id = :transaction_balance_user_id AND w.is_archived = 0), 0)
             + COALESCE((SELECT SUM(CASE WHEN tr.destination_wallet_id = active_wallet.id THEN tr.amount ELSE -tr.amount END) FROM transfers tr INNER JOIN wallets active_wallet ON active_wallet.user_id = tr.user_id AND active_wallet.is_archived = 0 AND (active_wallet.id = tr.source_wallet_id OR active_wallet.id = tr.destination_wallet_id) WHERE tr.user_id = :transfer_balance_user_id), 0)
+            + COALESCE((SELECT SUM(ba.amount_change) FROM wallet_balance_adjustments ba INNER JOIN wallets adjustment_wallet ON adjustment_wallet.id = ba.wallet_id AND adjustment_wallet.user_id = ba.user_id WHERE ba.user_id = :adjustment_balance_user_id AND adjustment_wallet.is_archived = 0), 0)
             AS DECIMAL(14,2)) AS total_balance,
             CAST(COALESCE(SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS monthly_income,
             CAST(COALESCE(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS monthly_expenses
          FROM transactions t WHERE t.user_id = :monthly_user_id AND t.transaction_date >= :month_start AND t.transaction_date < :next_month_start"
     );
-    $statement->execute(['balance_user_id' => $userId, 'transaction_balance_user_id' => $userId, 'transfer_balance_user_id' => $userId, 'monthly_user_id' => $userId, 'month_start' => $monthStart, 'next_month_start' => $nextMonthStart]);
+    $statement->execute(['balance_user_id' => $userId, 'transaction_balance_user_id' => $userId, 'transfer_balance_user_id' => $userId, 'adjustment_balance_user_id' => $userId, 'monthly_user_id' => $userId, 'month_start' => $monthStart, 'next_month_start' => $nextMonthStart]);
     $summary = $statement->fetch() ?: [];
     $income = (string) ($summary['monthly_income'] ?? '0.00');
     $expenses = (string) ($summary['monthly_expenses'] ?? '0.00');
