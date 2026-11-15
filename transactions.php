@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Your form expired. Please try again.';
     } elseif ($action === 'create_category') {
-        $categoryName = trim((string) ($_POST['category_name'] ?? ''));
+        $categoryName = normalize_financial_text((string) ($_POST['category_name'] ?? ''));
         $categoryType = (string) ($_POST['category_type'] ?? '');
 
         if (mb_strlen($categoryName) < 1 || mb_strlen($categoryName) > 100) {
@@ -79,12 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $transactionForm = [
             'id' => trim((string) ($_POST['transaction_id'] ?? '')),
             'type' => (string) ($_POST['transaction_type'] ?? ''),
-            'description' => trim((string) ($_POST['description'] ?? '')),
+            'description' => normalize_financial_text((string) ($_POST['description'] ?? '')),
             'amount' => trim((string) ($_POST['amount'] ?? '')),
             'wallet_id' => trim((string) ($_POST['wallet_id'] ?? '')),
             'category_id' => trim((string) ($_POST['category_id'] ?? '')),
             'transaction_date' => trim((string) ($_POST['transaction_date'] ?? '')),
-            'notes' => trim((string) ($_POST['notes'] ?? '')),
+            'notes' => normalize_financial_text((string) ($_POST['notes'] ?? '')),
         ];
 
         if (!in_array($transactionForm['type'], ['income', 'expense'], true)) {
@@ -293,7 +293,7 @@ require __DIR__ . '/includes/header.php';
                     <form class="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-end" action="transactions.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                         <input type="hidden" name="action" value="create_category">
-                        <label class="flex-1 text-sm font-bold">Category name<input class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_name" maxlength="100" required></label>
+                        <label class="flex-1 text-sm font-bold">Category name<input class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_name" data-uppercase maxlength="100" required></label>
                         <label class="text-sm font-bold sm:w-40">Type<select class="mt-1 block w-full rounded-lg border border-line px-3 py-2.5 font-normal" name="category_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
                         <button class="rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white" type="submit">Add category</button>
                     </form>
@@ -325,7 +325,7 @@ require __DIR__ . '/includes/header.php';
                                 <label for="amount">Amount (PHP)</label>
                                 <div class="transaction-amount-wrap relative"><span class="transaction-amount-prefix pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted">₱</span><input class="transaction-amount-input !pl-10 !py-4 !text-xl !font-extrabold" id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" value="<?= e($transactionForm['amount']) ?>" placeholder="0.00" required></div>
                             </div>
-                            <div class="form-field"><label for="description">Description</label><input id="description" name="description" maxlength="150" value="<?= e($transactionForm['description']) ?>" placeholder="e.g. Grocery shopping" required></div>
+                            <div class="form-field"><label for="description">Description</label><input id="description" name="description" data-uppercase maxlength="150" value="<?= e($transactionForm['description']) ?>" placeholder="e.g. Grocery shopping" required></div>
                             <div class="transaction-field-grid grid gap-5 sm:grid-cols-2">
                                 <div class="form-field"><label for="category_id">Category</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="category_id" name="category_id" data-category-select required><option value="">Select category</option><?php foreach ($categoryOptions as $category): ?><option data-category-type="<?= e($category['type']) ?>" value="<?= (int) $category['id'] ?>" <?= $transactionForm['category_id'] === (string) $category['id'] ? 'selected' : '' ?>><?= e($category['name']) ?></option><?php endforeach; ?></select></div>
                                 <div class="form-field"><label for="wallet_id">Wallet</label><select class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="wallet_id" name="wallet_id" required><option value="">Select wallet</option><?php foreach ($walletOptions as $wallet): ?><option value="<?= (int) $wallet['id'] ?>" <?= $transactionForm['wallet_id'] === (string) $wallet['id'] ? 'selected' : '' ?>><?= e($wallet['wallet_name']) ?></option><?php endforeach; ?></select></div>
@@ -333,7 +333,7 @@ require __DIR__ . '/includes/header.php';
                             <div class="form-field"><label for="transaction_date">Transaction date</label><input id="transaction_date" name="transaction_date" type="date" value="<?= e($transactionForm['transaction_date']) ?>" required></div>
                             <details class="rounded-xl bg-sand p-4">
                                 <summary class="cursor-pointer text-sm font-bold text-brand">Additional details (optional)</summary>
-                                <div class="form-field mt-4"><label for="notes">Notes</label><textarea class="min-h-24 w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="notes" name="notes" maxlength="5000"><?= e($transactionForm['notes']) ?></textarea></div>
+                                <div class="form-field mt-4"><label for="notes">Notes</label><textarea class="min-h-24 w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10" id="notes" name="notes" data-uppercase maxlength="5000"><?= e($transactionForm['notes']) ?></textarea></div>
                             </details>
                         </div>
                         <div class="transaction-dialog-footer flex gap-3 border-t border-line bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-7">

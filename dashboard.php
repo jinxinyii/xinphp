@@ -75,7 +75,7 @@ require __DIR__ . '/includes/header.php';
                 <?= e($today->format('F Y')) ?>.</p>
             <section class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Financial summary">
                 <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Total balance</p>
+                    <p class="text-sm font-bold text-muted">Total Balance</p>
                     <p class="mt-4 text-3xl font-extrabold tracking-tight"><?= format_peso($summary['total_balance']) ?>
                     </p>
                     <p class="mt-2 text-xs text-muted">Across active wallets</p>
@@ -93,7 +93,7 @@ require __DIR__ . '/includes/header.php';
                     <p class="mt-2 text-xs text-muted">This month</p>
                 </article>
                 <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-muted">Monthly savings</p>
+                    <p class="text-sm font-bold text-muted">Monthly Savings</p>
                     <p
                         class="mt-4 text-3xl font-extrabold tracking-tight <?= (float) $summary['monthly_savings'] < 0 ? 'text-rose-700' : 'text-brand' ?>">
                         <?= format_peso($summary['monthly_savings']) ?></p>
@@ -132,7 +132,7 @@ require __DIR__ . '/includes/header.php';
                                     <?= format_peso((string)$budget['amount']) ?> · Spent
                                     <?= format_peso((string)$budget['spent']) ?></p>
                             </div><span
-                                class="shrink-0 text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span>
+                                class="shrink-0 text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within Budget') ?></span>
                         </div>
                         <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line">
                             <div class="h-full rounded-full <?= $bar ?>" style="width:<?= min($percentage,100) ?>%">
@@ -147,10 +147,10 @@ require __DIR__ . '/includes/header.php';
             <section class="mt-10">
                 <div class="flex items-end justify-between gap-4">
                     <div>
-                        <h2 class="text-xl font-extrabold tracking-tight">Recent transactions</h2>
+                        <h2 class="text-xl font-extrabold tracking-tight">Recent Transactions</h2>
                         <p class="mt-1 text-sm text-muted">Your five latest income and expense entries.</p>
-                    </div><a class="text-sm font-bold text-brand hover:text-brand-dark" href="transactions.php">View all
-                        transactions</a>
+                    </div><a class="text-sm font-bold text-brand hover:text-brand-dark" href="transactions.php">View All
+                        Transactions</a>
                 </div><?php if (!$recentTransactions): ?><div
                     class="mt-5 rounded-2xl border border-dashed border-line bg-white p-8 text-center">
                     <p class="font-bold">No transactions yet</p>

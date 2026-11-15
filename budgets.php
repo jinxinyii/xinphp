@@ -37,22 +37,22 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand">Spending limits</p>
-                <h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Monthly budgets</h1>
+                <h1 class="mt-2 text-4xl font-extrabold tracking-[-.05em]">Monthly Budgets</h1>
                 <p class="mt-2 text-sm text-muted">Set limits for expense categories and monitor progress.</p>
             </div><a class="rounded-xl border border-line px-4 py-3 text-sm font-bold" href="dashboard.php">Back to
-                dashboard</a>
+                Dashboard</a>
         </div><?php if($flash): ?><div
             class="alert <?= $flash['type']==='success'?'alert-success':'alert-error' ?> mt-6">
             <?= e($flash['message']) ?></div><?php endif; ?><?php if($errors): ?><div class="alert alert-error mt-6">
             <ul class="list-inside list-disc"><?php foreach($errors as $error): ?><li><?= e($error) ?></li>
                 <?php endforeach; ?></ul>
         </div><?php endif; ?><form class="mt-7 flex items-end gap-3" method="get"><label
-                class="text-sm font-bold">Review month<input
+                class="text-sm font-bold">Review Month<input
                     class="mt-1 block rounded-xl border border-line px-3 py-2 font-normal" type="month" name="month"
                     value="<?= e($selectedMonth) ?>"></label><button
                 class="rounded-xl border border-line px-4 py-2 text-sm font-bold">View</button></form>
         <section class="mt-6 rounded-2xl border border-line bg-white p-6 shadow-sm">
-            <h2 class="font-extrabold"><?= $editing?'Edit budget':'Add budget' ?></h2>
+            <h2 class="font-extrabold"><?= $editing?'Edit budget':'Add Budget' ?></h2>
             <form class="mt-5 grid gap-4 sm:grid-cols-3" method="post"><input type="hidden" name="csrf_token"
                     value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
                     value="<?= $editing?'update':'create' ?>"><?php if($editing): ?><input type="hidden"
@@ -60,7 +60,7 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
                     class="text-sm font-bold">Month<input
                         class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" type="month"
                         name="budget_month" value="<?= e($form['month']) ?>" required></label><label
-                    class="text-sm font-bold">Expense category<select
+                    class="text-sm font-bold">Expense Category<select
                         class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="category_id"
                         required>
                         <option value="">Select</option><?php foreach($categories as $c): ?><option
@@ -70,7 +70,7 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
                         class="mt-1 block w-full rounded-xl border border-line px-3 py-2 font-normal" name="amount"
                         value="<?= e($form['amount']) ?>" inputmode="decimal" required></label><button
                     class="rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-dark"
-                    <?= !$categories?'disabled':'' ?>><?= $editing?'Save changes':'Add budget' ?></button><?php if($editing): ?><a
+                    <?= !$categories?'disabled':'' ?>><?= $editing?'Save changes':'Add Budget' ?></button><?php if($editing): ?><a
                     class="inline-flex items-center justify-center rounded-xl bg-rose-100 px-4 py-2 text-sm font-bold text-rose-700 transition hover:bg-rose-200 text-muted"
                     href="budgets.php?month=<?= e($selectedMonth) ?>">Cancel</a><?php endif; ?></form>
         </section>
@@ -89,7 +89,7 @@ $pageTitle='xinPHP | Budgets'; require __DIR__.'/includes/header.php';
                             <p class="mt-1 text-sm text-muted">Budget <?= format_peso((string)$b['amount']) ?> · Spent
                                 <?= format_peso((string)$b['spent']) ?></p>
                         </div><span
-                            class="text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within budget') ?></span>
+                            class="text-xs font-bold <?= $state==='exceeded'?'text-rose-700':($state==='approaching'?'text-amber-700':'text-brand') ?>"><?= $state==='exceeded'?'Exceeded':($state==='approaching'?'Approaching':'Within Budget') ?></span>
                     </div>
                     <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-line">
                         <div class="h-full <?= $bar ?>" style="width:<?= min($pct,100) ?>%"></div>

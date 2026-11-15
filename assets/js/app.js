@@ -1,3 +1,23 @@
+document.querySelectorAll('[data-uppercase]').forEach((field) => {
+    const uppercaseValue = () => {
+        const start = field.selectionStart;
+        const end = field.selectionEnd;
+        const value = field.value.toLocaleUpperCase();
+
+        if (field.value === value) return;
+
+        field.value = value;
+
+        if (typeof start === 'number' && typeof end === 'number') {
+            field.setSelectionRange(start, end);
+        }
+    };
+
+    field.addEventListener('input', uppercaseValue);
+    field.addEventListener('change', uppercaseValue);
+    uppercaseValue();
+});
+
 document.querySelectorAll('.toggle-password').forEach((button) => {
     button.addEventListener('click', () => {
         const input = document.getElementById(button.getAttribute('aria-controls'));

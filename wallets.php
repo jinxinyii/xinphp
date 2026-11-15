@@ -40,14 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'wallet_id' => $walletId,
                 'user_id' => $userId,
             ]);
-            set_flash('success', $action === 'archive' ? 'Wallet archived.' : 'Wallet restored to active wallets.');
+            set_flash('success', $action === 'archive' ? 'Wallet archived.' : 'Wallet restored to active Wallets.');
             redirect('wallets.php');
         }
     } elseif (in_array($action, ['create', 'update'], true)) {
         $walletForm = [
             'id' => trim((string) ($_POST['wallet_id'] ?? '')),
-            'wallet_name' => trim((string) ($_POST['wallet_name'] ?? '')),
-            'provider_name' => trim((string) ($_POST['provider_name'] ?? '')),
+            'wallet_name' => normalize_financial_text((string) ($_POST['wallet_name'] ?? '')),
+            'provider_name' => normalize_financial_text((string) ($_POST['provider_name'] ?? '')),
             'wallet_type' => (string) ($_POST['wallet_type'] ?? ''),
             'opening_balance' => trim((string) ($_POST['opening_balance'] ?? '')),
         ];
@@ -227,49 +227,49 @@ require __DIR__ . '/includes/header.php';
                             </div>
                             <p class="mt-6 text-2xl font-extrabold tracking-tight">
                                 <?= format_peso((string) $wallet['current_balance']) ?></p>
-                            <p class="mt-1 text-xs text-muted">Current balance · PHP</p>
+                            <p class="mt-1 text-xs text-muted">Current Balance · PHP</p>
                             <form class="mt-5" action="wallets.php" method="post"
                                 onsubmit="return confirm('Archive this wallet? Its history will be kept.');"><input
                                     type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden"
                                     name="action" value="archive"><input type="hidden" name="wallet_id"
                                     value="<?= (int) $wallet['id'] ?>"><button
                                     class="text-xs font-bold text-muted hover:text-ink" type="submit">Archive
-                                    wallet</button></form>
+                                    Wallet</button></form>
                         </article>
                         <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                 </div>
                 <section id="wallet-form" class="rounded-2xl border border-line bg-white p-6 shadow-sm">
-                    <h2 class="text-lg font-extrabold"><?= $editingWallet ? 'Edit wallet' : 'Add a wallet' ?></h2>
+                    <h2 class="text-lg font-extrabold"><?= $editingWallet ? 'EDIT WALLET' : 'ADD A WALLET' ?></h2>
                     <p class="mt-1 text-sm text-muted">Balances are shown in Philippine Peso.</p>
                     <form class="mt-6" action="wallets.php" method="post"><input type="hidden" name="csrf_token"
                             value="<?= e(csrf_token()) ?>"><input type="hidden" name="action"
                             value="<?= $editingWallet ? 'update' : 'create' ?>"><?php if ($editingWallet): ?><input
                             type="hidden" name="wallet_id" value="<?= e($walletForm['id']) ?>"><?php endif; ?><div
-                            class="form-field"><label for="wallet_name">Wallet name</label><input id="wallet_name"
-                                name="wallet_name" value="<?= e($walletForm['wallet_name']) ?>" placeholder="My GCash"
+                            class="form-field"><label for="wallet_name">Wallet Name</label><input id="wallet_name"
+                                name="wallet_name" data-uppercase value="<?= e($walletForm['wallet_name']) ?>" placeholder="My GCash"
                                 required></div>
                         <div class="form-field mt-5"><label for="provider_name">Provider</label><input
-                                id="provider_name" name="provider_name" value="<?= e($walletForm['provider_name']) ?>"
+                                id="provider_name" name="provider_name" data-uppercase value="<?= e($walletForm['provider_name']) ?>"
                                 list="wallet-providers" placeholder="GCash or your bank" required><datalist
                                 id="wallet-providers"><?php foreach (WALLET_PROVIDERS as $provider): ?><option
                                     value="<?= e($provider) ?>"><?php endforeach; ?></datalist></div>
-                        <div class="form-field mt-5"><label for="wallet_type">Wallet type</label><select
+                        <div class="form-field mt-5"><label for="wallet_type">Wallet Type</label><select
                                 class="w-full rounded-xl border border-line px-4 py-3.5 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
                                 id="wallet_type" name="wallet_type"
                                 required><?php foreach (WALLET_TYPES as $value => $label): ?><option
                                     value="<?= e($value) ?>"
                                     <?= $walletForm['wallet_type'] === $value ? 'selected' : '' ?>><?= e($label) ?>
                                 </option><?php endforeach; ?></select></div>
-                        <div class="form-field mt-5"><label for="opening_balance">Opening balance</label><input
+                        <div class="form-field mt-5"><label for="opening_balance">Opening Balance</label><input
                                 id="opening_balance" name="opening_balance" type="text" inputmode="decimal"
                                 value="<?= e($walletForm['opening_balance']) ?>" placeholder="0.00" required></div>
                         <button
                             class="mt-6 w-full rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-white hover:bg-brand-dark"
-                            type="submit"><?= $editingWallet ? 'Save changes' : 'Add wallet' ?></button><?php if ($editingWallet): ?><a
+                            type="submit"><?= $editingWallet ? 'Save Changes' : 'Add Wallet' ?></button><?php if ($editingWallet): ?><a
                             class="mt-3 block text-center text-sm font-bold text-muted hover:text-ink"
-                            href="wallets.php">Cancel editing</a><?php endif; ?>
+                            href="wallets.php">Cancel Editing</a><?php endif; ?>
                     </form>
                 </section>
             </section>
@@ -286,7 +286,7 @@ require __DIR__ . '/includes/header.php';
                                 value="reactivate"><input type="hidden" name="wallet_id"
                                 value="<?= (int) $wallet['id'] ?>"><button
                                 class="text-sm font-bold text-brand hover:text-brand-dark" type="submit">Restore
-                                wallet</button></form>
+                                Wallet</button></form>
                     </article><?php endforeach; ?></div>
             </section><?php endif; ?>
         </main>

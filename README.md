@@ -177,3 +177,7 @@ XinPHP is an ongoing project. Features, database structure, and deployment instr
 ## License
 
 No license has been specified yet. Unless a license is added to this repository, the default copyright rules apply and others should not assume they have permission to reuse, modify, or distribute the project.
+
+## Updating existing financial text to uppercase
+
+New and edited financial text is normalized to uppercase by the application. To convert existing records, first create a database backup, then import `database/migrations/003_uppercase_existing_financial_text.sql` using phpMyAdmin while connected to `xinphp_db`. This migration updates wallet provider and wallet names, category names, transaction and transfer descriptions and notes, savings goal names and notes, savings contribution notes, and recurring transaction descriptions and notes. It does not change account names, email addresses, passwords, dates, amounts, or internal transaction types. The migration can be run again safely, but always keep a backup before applying database changes.

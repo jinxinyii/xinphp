@@ -22,6 +22,13 @@ function format_peso(string|float|int $amount): string
     return '₱' . number_format((float) $amount, 2);
 }
 
+function normalize_financial_text(string $value): string
+{
+    $value = trim($value);
+
+    return function_exists('mb_strtoupper') ? mb_strtoupper($value, 'UTF-8') : strtoupper($value);
+}
+
 /**
  * Returns a wallet only when it belongs to the authenticated user.
  * Never query a private record by ID alone.
